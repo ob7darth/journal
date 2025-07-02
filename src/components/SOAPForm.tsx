@@ -1,7 +1,9 @@
 import React, { useState } from 'react';
-import { Save, ArrowLeft, BookOpen, Share2 } from 'lucide-react';
+import { Save, ArrowLeft, BookOpen, Share2, Search } from 'lucide-react';
 import { DailyReading } from '../types/ReadingPlan';
 import { SOAPEntry } from '../types/SOAPEntry';
+import { BibleVerse } from '../services/BibleService';
+import BibleSearch from './BibleSearch';
 
 interface SOAPFormProps {
   day: number;
@@ -25,6 +27,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
   const [application, setApplication] = useState(existingEntry?.application || '');
   const [prayer, setPrayer] = useState(existingEntry?.prayer || '');
   const [isSaving, setIsSaving] = useState(false);
+  const [showBibleSearch, setShowBibleSearch] = useState(false);
 
   const handleSave = async () => {
     if (!scripture.trim() || !observation.trim() || !application.trim() || !prayer.trim()) {
@@ -73,6 +76,12 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
     onShare?.(entry);
   };
 
+  const handleVerseSelect = (verse: BibleVerse) => {
+    const verseText = `"${verse.text}" - ${verse.book} ${verse.chapter}:${verse.verse}`;
+    setScripture(verseText);
+    setShowBibleSearch(false);
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm">
       {/* Header */}
@@ -111,12 +120,28 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
       <div className="p-6 space-y-6">
         {/* Scripture */}
         <div>
-          <label className="block text-sm font-semibold text-gray-800 mb-2">
-            📖 Scripture
-            <span className="font-normal text-gray-600 ml-2">
-              Choose a verse that stands out to you
-            </span>
-          </label>
+          <div className="flex items-center justify-between mb-2">
+            <label className="block text-sm font-semibold text-gray-800">
+              📖 Scripture
+              <span className="font-normal text-gray-600 ml-2">
+                Choose a verse that stands out to you
+              </span>
+            </label>
+            <button
+              onClick={() => setShowBibleSearch(!showBibleSearch)}
+              className="flex items-center gap-1 text-sm text-primary-600 hover:text-primary-700"
+            >
+              <Search size={16} />
+              Search Verses
+            </button>
+          </div>
+          
+          {showBibleSearch && (
+            <div className="mb-4">
+              <BibleSearch onVerseSelect={handleVerseSelect} />
+            </div>
+          )}
+          
           <textarea
             value={scripture}
             onChange={(e) => setScripture(e.target.value)}
