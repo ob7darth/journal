@@ -10,9 +10,11 @@ import ProgressTracker from './components/ProgressTracker';
 import ShareModal from './components/ShareModal';
 import GroupChat from './components/GroupChat';
 import ResourcesPanel from './components/ResourcesPanel';
+import SplashScreen from './components/SplashScreen';
 import { generateFullYearPlan } from './data/readingPlan';
 
 function App() {
+  const [showSplash, setShowSplash] = useState(true);
   const [readingPlan] = useState<ReadingPlan>(generateFullYearPlan());
   
   // Calculate today's day of year
@@ -72,6 +74,11 @@ function App() {
     const startDate = new Date(2025, 0, 1); // January 1, 2025
     return addDays(startDate, currentDay - 1);
   };
+
+  // Show splash screen first
+  if (showSplash) {
+    return <SplashScreen onComplete={() => setShowSplash(false)} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-50 to-warm-100">
