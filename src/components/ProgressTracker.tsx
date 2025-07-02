@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle, Calendar } from 'lucide-react';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import { ReadingPlan } from '../types/ReadingPlan';
 import { SOAPEntry } from '../types/SOAPEntry';
 
@@ -14,8 +14,7 @@ interface ProgressTrackerProps {
 const ProgressTracker: React.FC<ProgressTrackerProps> = ({ 
   readingPlan, 
   soapEntries, 
-  onDaySelect,
-  onShareEntry
+  onDaySelect
 }) => {
   const completedDays = Object.keys(soapEntries).length;
   const totalDays = readingPlan.days.length;
@@ -95,7 +94,6 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                 <div className="grid grid-cols-7 gap-1">
                   {month.days.map((day) => {
                     const isCompleted = !!soapEntries[day.day];
-                    const entry = soapEntries[day.day];
                     const dayOfMonth = new Date(day.date).getDate();
                     
                     return (
