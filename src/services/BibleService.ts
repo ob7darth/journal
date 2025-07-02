@@ -1,4 +1,4 @@
-import { initSqlJs, Database } from 'sql.js';
+import initSqlJs, { Database } from 'sql.js';
 
 export interface BibleVerse {
   book: string;
