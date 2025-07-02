@@ -14,11 +14,12 @@ const Header: React.FC<HeaderProps> = ({ planName, currentDay, totalDays }) => {
       <div className="container mx-auto px-4 py-4 max-w-4xl">
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center overflow-hidden">
+            <div className="w-10 h-10 bg-primary-600 rounded-lg flex items-center justify-center">
               <img 
-                src="/dove only.png" 
+                src="/dove-icon.svg" 
                 alt="Life Journal" 
-                className="w-8 h-8 object-contain filter brightness-0 invert"
+                className="w-6 h-6 text-white"
+                style={{ filter: 'brightness(0) invert(1)' }}
               />
             </div>
             <div>
