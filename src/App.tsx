@@ -96,7 +96,7 @@ function App() {
           <div className="flex items-center gap-4">
             <div className="text-center">
               <h2 className="text-xl font-semibold text-gray-800">Day {currentDay}</h2>
-              <p className="text-sm text-gray-600">{format(getCurrentDate(), 'MMMM d, yyyy')}</p>
+              <p className="text-sm text-gray-600">{format(getCurrentDate(), 'MMMM d')}</p>
             </div>
             
             {/* Today Button */}
