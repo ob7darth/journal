@@ -20,7 +20,7 @@ function App() {
     const now = new Date();
     const startOfCurrentYear = startOfYear(now);
     const dayOfYear = Math.floor((now.getTime() - startOfCurrentYear.getTime()) / (1000 * 60 * 60 * 24)) + 1;
-    return Math.min(dayOfYear, 366); // Ensure we don't exceed the plan
+    return Math.min(dayOfYear, 365); // 2025 is not a leap year, so max 365 days
   };
 
   const [todaysDayOfYear] = useState(getTodaysDayOfYear());
@@ -69,7 +69,7 @@ function App() {
 
   // Get the actual date for the current day
   const getCurrentDate = () => {
-    const startDate = new Date(2024, 0, 1); // January 1, 2024
+    const startDate = new Date(2025, 0, 1); // January 1, 2025
     return addDays(startDate, currentDay - 1);
   };
 
