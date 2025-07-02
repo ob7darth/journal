@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { format, addDays, startOfYear } from 'date-fns';
-import { Book, Calendar, PenTool, ChevronLeft, ChevronRight, MessageCircle, ExternalLink } from 'lucide-react';
+import { Book, Calendar, PenTool, ChevronLeft, ChevronRight, MessageCircle, ExternalLink, Home } from 'lucide-react';
 import { ReadingPlan } from './types/ReadingPlan';
 import { SOAPEntry } from './types/SOAPEntry';
 import Header from './components/Header';
@@ -14,13 +14,17 @@ import { generateFullYearPlan } from './data/readingPlan';
 
 function App() {
   const [readingPlan] = useState<ReadingPlan>(generateFullYearPlan());
-  const [currentDay, setCurrentDay] = useState(() => {
-    // Calculate current day of year (1-366)
+  
+  // Calculate today's day of year
+  const getTodaysDayOfYear = () => {
     const now = new Date();
     const startOfCurrentYear = startOfYear(now);
     const dayOfYear = Math.floor((now.getTime() - startOfCurrentYear.getTime()) / (1000 * 60 * 60 * 24)) + 1;
     return Math.min(dayOfYear, 366); // Ensure we don't exceed the plan
-  });
+  };
+
+  const [todaysDayOfYear] = useState(getTodaysDayOfYear());
+  const [currentDay, setCurrentDay] = useState(todaysDayOfYear);
   const [soapEntries, setSoapEntries] = useState<Record<number, SOAPEntry>>({});
   const [activeView, setActiveView] = useState<'reading' | 'soap' | 'progress' | 'chat' | 'resources'>('reading');
   const [showShareModal, setShowShareModal] = useState(false);
@@ -44,6 +48,11 @@ function App() {
   const handleShareEntry = (entry: SOAPEntry) => {
     setEntryToShare(entry);
     setShowShareModal(true);
+  };
+
+  const goToToday = () => {
+    setCurrentDay(todaysDayOfYear);
+    setActiveView('reading');
   };
 
   const currentReading = readingPlan.days.find(d => d.day === currentDay);
@@ -84,9 +93,22 @@ function App() {
             Previous Day
           </button>
           
-          <div className="text-center">
-            <h2 className="text-xl font-semibold text-gray-800">Day {currentDay}</h2>
-            <p className="text-sm text-gray-600">{format(getCurrentDate(), 'MMMM d, yyyy')}</p>
+          <div className="flex items-center gap-4">
+            <div className="text-center">
+              <h2 className="text-xl font-semibold text-gray-800">Day {currentDay}</h2>
+              <p className="text-sm text-gray-600">{format(getCurrentDate(), 'MMMM d, yyyy')}</p>
+            </div>
+            
+            {/* Today Button */}
+            {currentDay !== todaysDayOfYear && (
+              <button
+                onClick={goToToday}
+                className="flex items-center gap-2 px-4 py-2 bg-primary-600 text-white rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                <Home size={18} />
+                Today
+              </button>
+            )}
           </div>
           
           <button
