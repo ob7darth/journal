@@ -145,7 +145,7 @@ const ResourcesPanel: React.FC = () => {
             Connect with Us
           </a>
           <a
-            href="https://www.newhopewest.com/small-groups"
+            href="https://newhopewest.com/lifegroups/"
             target="_blank"
             rel="noopener noreferrer"
             className="bg-primary-500 text-white px-4 py-2 rounded-lg hover:bg-primary-400 transition-colors inline-flex items-center gap-2"
