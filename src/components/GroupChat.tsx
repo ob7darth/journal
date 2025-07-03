@@ -1,16 +1,18 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Users, Wifi, WifiOff } from 'lucide-react';
 import { chatService, ChatMessage, ChatUser } from '../services/ChatService';
+import { authService } from '../services/AuthService';
 
 const GroupChat: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [users, setUsers] = useState<ChatUser[]>([]);
   const [newMessage, setNewMessage] = useState('');
-  const [userName, setUserName] = useState('');
   const [isJoined, setIsJoined] = useState(false);
   const [isConnected, setIsConnected] = useState(false);
   const [isConnecting, setIsConnecting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+
+  const currentUser = authService.getCurrentUser();
 
   useEffect(() => {
     // Set up chat service callbacks
@@ -39,24 +41,29 @@ const GroupChat: React.FC = () => {
     setMessages(chatService.getMessages());
     setUsers(chatService.getUsers());
 
+    // Auto-join if user is authenticated
+    if (currentUser) {
+      handleJoinChat();
+    }
+
     return () => {
       chatService.disconnect();
     };
-  }, []);
+  }, [currentUser]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
   const handleJoinChat = async () => {
-    if (userName.trim()) {
-      try {
-        await chatService.joinChat(userName.trim());
-        setIsJoined(true);
-      } catch (error) {
-        console.error('Failed to join chat:', error);
-        alert('Failed to join chat. Please try again.');
-      }
+    if (!currentUser) return;
+
+    try {
+      await chatService.joinChat(currentUser.name);
+      setIsJoined(true);
+    } catch (error) {
+      console.error('Failed to join chat:', error);
+      alert('Failed to join chat. Please try again.');
     }
   };
 
@@ -111,6 +118,22 @@ const GroupChat: React.FC = () => {
 
   const onlineUsers = users.filter(u => u.isOnline);
 
+  if (!currentUser) {
+    return (
+      <div className="bg-white rounded-xl shadow-sm p-6">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Users className="text-gray-400" size={32} />
+          </div>
+          <h2 className="text-xl font-bold text-gray-900 mb-2">Join the Conversation</h2>
+          <p className="text-gray-600 mb-4">
+            Please sign in or continue as a guest to access the group chat.
+          </p>
+        </div>
+      </div>
+    );
+  }
+
   if (!isJoined) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-6">
@@ -143,22 +166,16 @@ const GroupChat: React.FC = () => {
         </div>
 
         <div className="max-w-sm mx-auto">
-          <label htmlFor="userName" className="block text-sm font-medium text-gray-700 mb-2">
-            Your Name
-          </label>
-          <input
-            type="text"
-            id="userName"
-            value={userName}
-            onChange={(e) => setUserName(e.target.value)}
-            onKeyPress={handleKeyPress}
-            placeholder="Enter your name"
-            className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors"
-          />
+          <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-sm text-blue-800">
+              <strong>Welcome, {currentUser.name}!</strong> You're ready to join the chat.
+            </p>
+          </div>
+          
           <button
             onClick={handleJoinChat}
-            disabled={!userName.trim() || isConnecting}
-            className="w-full mt-4 bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+            disabled={isConnecting}
+            className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
             {isConnecting ? 'Connecting...' : 'Join Chat'}
           </button>

@@ -1,8 +1,9 @@
 import { useState, useEffect } from 'react';
 import { format, addDays, startOfYear } from 'date-fns';
-import { Book, Calendar, PenTool, ChevronLeft, ChevronRight, MessageCircle, ExternalLink, Home } from 'lucide-react';
+import { Book, Calendar, PenTool, ChevronLeft, ChevronRight, MessageCircle, ExternalLink, Home, User } from 'lucide-react';
 import { ReadingPlan } from './types/ReadingPlan';
 import { SOAPEntry } from './types/SOAPEntry';
+import { authService, User as AuthUser } from './services/AuthService';
 import Header from './components/Header';
 import ReadingView from './components/ReadingView';
 import SOAPForm from './components/SOAPForm';
@@ -11,11 +12,19 @@ import ShareModal from './components/ShareModal';
 import GroupChat from './components/GroupChat';
 import ResourcesPanel from './components/ResourcesPanel';
 import SplashScreen from './components/SplashScreen';
+import AuthModal from './components/AuthModal';
+import UserProfile from './components/UserProfile';
 import { generateFullYearPlan } from './data/readingPlan';
 
 function App() {
   const [showSplash, setShowSplash] = useState(true);
   const [readingPlan] = useState<ReadingPlan>(generateFullYearPlan());
+  
+  // Auth state
+  const [user, setUser] = useState<AuthUser | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
+  const [authMode, setAuthMode] = useState<'signin' | 'signup' | 'guest'>('guest');
+  const [showProfile, setShowProfile] = useState(false);
   
   // Calculate today's day of year
   const getTodaysDayOfYear = () => {
@@ -32,19 +41,51 @@ function App() {
   const [showShareModal, setShowShareModal] = useState(false);
   const [entryToShare, setEntryToShare] = useState<SOAPEntry | null>(null);
 
-  // Load saved entries from localStorage
+  // Initialize auth service
   useEffect(() => {
-    const saved = localStorage.getItem('soap-entries');
-    if (saved) {
-      setSoapEntries(JSON.parse(saved));
+    authService.onAuthChange((authState) => {
+      setUser(authState.user);
+      if (authState.user) {
+        loadUserEntries(authState.user);
+      }
+    });
+
+    // Check if user is already authenticated
+    const currentUser = authService.getCurrentUser();
+    if (currentUser) {
+      setUser(currentUser);
+      loadUserEntries(currentUser);
+    } else {
+      // Show auth modal after splash screen
+      setTimeout(() => {
+        if (!authService.isAuthenticated()) {
+          setShowAuthModal(true);
+        }
+      }, 3000);
     }
   }, []);
 
-  // Save entries to localStorage
+  // Load user-specific entries
+  const loadUserEntries = (user: AuthUser) => {
+    const storageKey = authService.getStorageKey('soap-entries');
+    const saved = localStorage.getItem(storageKey);
+    if (saved) {
+      setSoapEntries(JSON.parse(saved));
+    }
+  };
+
+  // Save entries with user-specific storage
   const saveSOAPEntry = (day: number, entry: SOAPEntry) => {
     const updated = { ...soapEntries, [day]: entry };
     setSoapEntries(updated);
-    localStorage.setItem('soap-entries', JSON.stringify(updated));
+    
+    const storageKey = authService.getStorageKey('soap-entries');
+    localStorage.setItem(storageKey, JSON.stringify(updated));
+
+    // Sync to cloud if member
+    if (user && !user.isGuest) {
+      authService.syncData().catch(console.error);
+    }
   };
 
   const handleShareEntry = (entry: SOAPEntry) => {
@@ -55,6 +96,20 @@ function App() {
   const goToToday = () => {
     setCurrentDay(todaysDayOfYear);
     setActiveView('reading');
+  };
+
+  const handleAuthSuccess = () => {
+    setShowAuthModal(false);
+    // Reload entries for the new user
+    const currentUser = authService.getCurrentUser();
+    if (currentUser) {
+      loadUserEntries(currentUser);
+    }
+  };
+
+  const openAuthModal = (mode: 'signin' | 'signup' | 'guest') => {
+    setAuthMode(mode);
+    setShowAuthModal(true);
   };
 
   const currentReading = readingPlan.days.find(d => d.day === currentDay);
@@ -80,12 +135,50 @@ function App() {
     return <SplashScreen onComplete={() => setShowSplash(false)} />;
   }
 
+  // Show auth modal if not authenticated
+  if (!user && !showAuthModal) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-warm-50 to-warm-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="w-16 h-16 bg-primary-100 rounded-full flex items-center justify-center mx-auto mb-4">
+            <Book className="text-primary-600" size={32} />
+          </div>
+          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome to Life Journal</h1>
+          <p className="text-gray-600 mb-6">Choose how you'd like to get started</p>
+          
+          <div className="space-y-3 max-w-sm mx-auto">
+            <button
+              onClick={() => openAuthModal('guest')}
+              className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors"
+            >
+              Continue as Guest
+            </button>
+            <button
+              onClick={() => openAuthModal('signin')}
+              className="w-full bg-white text-gray-700 py-3 px-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+            >
+              Sign In
+            </button>
+            <button
+              onClick={() => openAuthModal('signup')}
+              className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+            >
+              Create Account
+            </button>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-50 to-warm-100">
       <Header 
         planName={readingPlan.name}
         currentDay={currentDay}
         totalDays={readingPlan.days.length}
+        user={user}
+        onUserClick={() => setShowProfile(true)}
       />
       
       <main className="container mx-auto px-4 py-6 max-w-4xl">
@@ -228,6 +321,24 @@ function App() {
           <ResourcesPanel />
         )}
       </main>
+
+      {/* Auth Modal */}
+      {showAuthModal && (
+        <AuthModal
+          isOpen={showAuthModal}
+          onClose={() => setShowAuthModal(false)}
+          mode={authMode}
+          onSuccess={handleAuthSuccess}
+        />
+      )}
+
+      {/* User Profile Modal */}
+      {showProfile && user && (
+        <UserProfile
+          user={user}
+          onClose={() => setShowProfile(false)}
+        />
+      )}
 
       {/* Share Modal */}
       {showShareModal && entryToShare && (

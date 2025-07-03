@@ -1,12 +1,15 @@
 import React from 'react';
+import { User } from 'lucide-react';
 
 interface HeaderProps {
   planName: string;
   currentDay: number;
   totalDays: number;
+  user?: any;
+  onUserClick?: () => void;
 }
 
-const Header: React.FC<HeaderProps> = ({ planName, currentDay, totalDays }) => {
+const Header: React.FC<HeaderProps> = ({ planName, currentDay, totalDays, user, onUserClick }) => {
   const progress = (currentDay / totalDays) * 100;
 
   return (
@@ -26,9 +29,31 @@ const Header: React.FC<HeaderProps> = ({ planName, currentDay, totalDays }) => {
               <p className="text-sm text-gray-600">{planName}</p>
             </div>
           </div>
-          <div className="text-right">
-            <p className="text-sm font-medium text-gray-900">Day {currentDay} of {totalDays}</p>
-            <p className="text-xs text-gray-500">{Math.round(progress)}% Complete</p>
+          
+          <div className="flex items-center gap-4">
+            <div className="text-right">
+              <p className="text-sm font-medium text-gray-900">Day {currentDay} of {totalDays}</p>
+              <p className="text-xs text-gray-500">{Math.round(progress)}% Complete</p>
+            </div>
+            
+            {/* User Profile Button */}
+            {user && (
+              <button
+                onClick={onUserClick}
+                className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                title="View Profile"
+              >
+                <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
+                  <User className="text-primary-600" size={16} />
+                </div>
+                <div className="text-left hidden sm:block">
+                  <p className="text-sm font-medium text-gray-900">{user.name}</p>
+                  <p className="text-xs text-gray-500">
+                    {user.isGuest ? 'Guest' : 'Member'}
+                  </p>
+                </div>
+              </button>
+            )}
           </div>
         </div>
         
