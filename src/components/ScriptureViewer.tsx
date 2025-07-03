@@ -88,7 +88,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
             </div>
           ) : error ? (
             <div className="p-6 text-red-600 text-center">{error}</div>
-          ) : scripture ? (
+          ) : scripture && scripture.text.length > 0 ? (
             <div className="p-6">
               <div className="space-y-3">
                 {scripture.text.map((verse, index) => (
@@ -103,15 +103,6 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
                 ))}
               </div>
               
-              {scripture.text.length === 1 && scripture.text[0].text.includes('not yet loaded') && (
-                <div className="mt-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-800">
-                    <strong>Note:</strong> This passage is not yet available in our local database. 
-                    Click the link above to read it on Bible Gateway.
-                  </p>
-                </div>
-              )}
-              
               <div className="mt-6 pt-4 border-t border-gray-200 flex justify-center">
                 <a 
                   href={bibleGatewayUrl}
@@ -125,8 +116,19 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
               </div>
             </div>
           ) : (
-            <div className="p-6 text-gray-500 text-center">
-              No scripture content available
+            <div className="p-6 text-center">
+              <p className="text-gray-600 mb-4">
+                Click the link below to read this passage on Bible Gateway.
+              </p>
+              <a 
+                href={bibleGatewayUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+              >
+                Read on Bible Gateway
+                <ExternalLink size={16} />
+              </a>
             </div>
           )}
         </div>

@@ -55,20 +55,7 @@ class BibleService {
       v.book === book && v.chapter === chapter
     );
 
-    if (matchingVerses.length === 0) {
-      return {
-        book,
-        chapter,
-        verses,
-        text: [{
-          book,
-          chapter,
-          verse: 1,
-          text: `[${book} ${chapter}:${verses}] - This passage is not available in the sample data. Please refer to your Bible or use the Bible Gateway link.`
-        }]
-      };
-    }
-
+    // Return the matching verses if found, or empty array if not found
     return {
       book,
       chapter,
