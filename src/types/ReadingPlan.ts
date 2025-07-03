@@ -2,6 +2,8 @@ export interface Passage {
   book: string;
   chapter: number;
   verses: string;
+  endChapter?: number; // Add optional end chapter for ranges
+  displayText?: string; // Add optional custom display text
 }
 
 export interface DailyReading {

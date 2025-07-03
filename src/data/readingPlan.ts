@@ -1,6 +1,6 @@
 import { ReadingPlan, Passage } from '../types/ReadingPlan';
 
-// Helper function to parse passage strings like "Gen. 1,2" or "Ps. 3"
+// Helper function to parse passage strings like "Gen. 1-2" or "Ps. 3"
 const parsePassages = (passageStr: string): Passage[] => {
   const passages: Passage[] = [];
   const parts = passageStr.split(';').map(p => p.trim());
@@ -18,7 +18,8 @@ const parsePassages = (passageStr: string): Passage[] => {
             passages.push({
               book: "Psalms",
               chapter: psalm,
-              verses: "1-176"
+              verses: "1-176",
+              displayText: `Psalms ${psalm}`
             });
           }
         } else if (psalmRange.includes('-')) {
@@ -26,13 +27,16 @@ const parsePassages = (passageStr: string): Passage[] => {
           passages.push({
             book: "Psalms",
             chapter: start,
-            verses: `1-176`
+            verses: "1-176",
+            endChapter: end,
+            displayText: `Psalms ${start}-${end}`
           });
         } else {
           passages.push({
             book: "Psalms",
             chapter: parseInt(psalmRange),
-            verses: "1-176"
+            verses: "1-176",
+            displayText: `Psalms ${psalmRange}`
           });
         }
       }
@@ -45,7 +49,8 @@ const parsePassages = (passageStr: string): Passage[] => {
         passages.push({
           book: "Psalms",
           chapter: 119,
-          verses: `${startVerse}-${endVerse}`
+          verses: `${startVerse}-${endVerse}`,
+          displayText: `Psalms 119:${startVerse}-${endVerse}`
         });
       }
     } else {
@@ -136,7 +141,8 @@ const parsePassages = (passageStr: string): Passage[] => {
           passages.push({
             book: fullBookName,
             chapter: 1,
-            verses: "1-25" // Single chapter books are typically short
+            verses: "1-25",
+            displayText: fullBookName
           });
         } else if (!chapterPart) {
           // If no chapter part is provided, it might be a single-chapter book
@@ -144,57 +150,52 @@ const parsePassages = (passageStr: string): Passage[] => {
             passages.push({
               book: fullBookName,
               chapter: 1,
-              verses: "1-25"
+              verses: "1-25",
+              displayText: fullBookName
             });
           }
         } else {
-          // Handle chapter ranges like "1,2" or "3-5" or "6,7"
-          if (chapterPart.includes(',')) {
-            // Group consecutive chapters together
-            const chapters = chapterPart.split(',').map(c => c.trim());
-            const chapterNumbers: number[] = [];
-            
-            for (const chapter of chapters) {
-              if (chapter.includes('-')) {
-                const [start, end] = chapter.split('-').map(c => parseInt(c.trim()));
-                for (let i = start; i <= end; i++) {
-                  chapterNumbers.push(i);
-                }
-              } else {
-                chapterNumbers.push(parseInt(chapter));
-              }
-            }
+          // Handle chapter ranges like "1-2" or "3-5" or "6,7"
+          if (chapterPart.includes('-')) {
+            const [start, end] = chapterPart.split('-').map(c => parseInt(c.trim()));
+            passages.push({
+              book: fullBookName,
+              chapter: start,
+              verses: "1-50",
+              endChapter: end,
+              displayText: `${fullBookName} ${start}-${end}`
+            });
+          } else if (chapterPart.includes(',')) {
+            // Handle comma-separated chapters like "1,2"
+            const chapters = chapterPart.split(',').map(c => parseInt(c.trim()));
             
             // Group consecutive chapters
-            const groups = groupConsecutiveChapters(chapterNumbers);
+            const groups = groupConsecutiveChapters(chapters);
             for (const group of groups) {
               if (group.length === 1) {
                 passages.push({
                   book: fullBookName,
                   chapter: group[0],
-                  verses: "1-50"
+                  verses: "1-50",
+                  displayText: `${fullBookName} ${group[0]}`
                 });
               } else {
                 // Create a single passage for consecutive chapters
                 passages.push({
                   book: fullBookName,
                   chapter: group[0],
-                  verses: `1-50` // Will be displayed as "Book chapters X-Y"
+                  verses: "1-50",
+                  endChapter: group[group.length - 1],
+                  displayText: `${fullBookName} ${group[0]}-${group[group.length - 1]}`
                 });
               }
             }
-          } else if (chapterPart.includes('-')) {
-            const [start, end] = chapterPart.split('-').map(c => parseInt(c.trim()));
-            passages.push({
-              book: fullBookName,
-              chapter: start,
-              verses: `1-50` // Will be displayed as range
-            });
           } else {
             passages.push({
               book: fullBookName,
               chapter: parseInt(chapterPart),
-              verses: "1-50"
+              verses: "1-50",
+              displayText: `${fullBookName} ${chapterPart}`
             });
           }
         }

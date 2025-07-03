@@ -21,19 +21,41 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
   const formatPassageDisplay = (passage: Passage): string => {
     const { book, chapter, verses } = passage;
     
-    // Check if this represents a chapter range by looking at the original reading data
-    // For ranges like "Gen. 1-2", we want to show "Genesis 1-2"
+    // Check if this represents a chapter range by looking at the verses field
+    // When we have consecutive chapters, verses will be "1-50" and we need to determine the range
     if (verses === "1-50" || verses === "1-176") {
-      // This is likely a chapter range - we need to determine the end chapter
-      // For now, we'll show it as a single chapter, but this could be enhanced
-      // to track the actual range from the parsing
+      // This indicates a chapter range - we need to extract the range from the original data
+      // For now, we'll check if the passage represents multiple chapters by looking at common patterns
+      
+      // Since the parsing logic groups consecutive chapters but stores only the first chapter number,
+      // we need a way to determine the actual range. Let's use a different approach:
+      // We'll assume that if verses is "1-50", it might be a chapter range
+      
+      // For single chapters, just show the chapter
       return `${book} ${chapter}`;
     }
     
+    // For specific verse ranges, show chapter:verses
     return `${book} ${chapter}:${verses}`;
   };
 
-  const formattedPassage = formatPassageDisplay(passage);
+  // We need to modify this to handle the actual range data
+  // Let's create a better approach by checking the passage data structure
+  const getDisplayText = (): string => {
+    const { book, chapter, verses } = passage;
+    
+    // If we have a range indicator in the verses field or if this is a full chapter
+    if (verses === "1-50" || verses === "1-176") {
+      // For full chapters, just show the chapter number
+      // The range information should come from the parsing logic
+      return `${book} ${chapter}`;
+    }
+    
+    // For specific verses
+    return `${book} ${chapter}:${verses}`;
+  };
+
+  const formattedPassage = getDisplayText();
   const bibleGatewayUrl = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(formattedPassage)}&version=${version}`;
 
   useEffect(() => {
