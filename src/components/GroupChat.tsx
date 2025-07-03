@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Users, Wifi, WifiOff } from 'lucide-react';
-import { chatService, ChatMessage, ChatUser } from '../services/ChatService';
+import { Send, Users, Wifi, WifiOff, Heart, ThumbsUp } from 'lucide-react';
+import { chatService, ChatMessage, ChatUser, ChatReaction } from '../services/ChatService';
 import { authService } from '../services/AuthService';
 
 const GroupChat: React.FC = () => {
@@ -17,7 +17,15 @@ const GroupChat: React.FC = () => {
   useEffect(() => {
     // Set up chat service callbacks
     chatService.onMessage((message) => {
-      setMessages(prev => [...prev, message]);
+      setMessages(prev => {
+        const existingIndex = prev.findIndex(m => m.id === message.id);
+        if (existingIndex >= 0) {
+          const updated = [...prev];
+          updated[existingIndex] = message;
+          return updated;
+        }
+        return [...prev, message];
+      });
     });
 
     chatService.onUsers((userList) => {
@@ -27,6 +35,12 @@ const GroupChat: React.FC = () => {
     chatService.onConnection((connected) => {
       setIsConnected(connected);
       setIsConnecting(false);
+    });
+
+    chatService.onReaction((messageId, reactions) => {
+      setMessages(prev => prev.map(msg => 
+        msg.id === messageId ? { ...msg, reactions } : msg
+      ));
     });
 
     // Try to connect to server (will fall back to demo mode if server unavailable)
@@ -83,6 +97,14 @@ const GroupChat: React.FC = () => {
     }
   };
 
+  const handleReaction = async (messageId: string, reactionType: ChatReaction['type']) => {
+    try {
+      await chatService.addReaction(messageId, reactionType);
+    } catch (error) {
+      console.error('Failed to add reaction:', error);
+    }
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -114,6 +136,29 @@ const GroupChat: React.FC = () => {
       default:
         return 'bg-white border-gray-200';
     }
+  };
+
+  const getReactionEmoji = (type: ChatReaction['type']) => {
+    switch (type) {
+      case 'like':
+        return '👍';
+      case 'heart':
+        return '❤️';
+      case 'wow':
+        return '😮';
+      case 'pray':
+        return '🙏';
+      default:
+        return '👍';
+    }
+  };
+
+  const getReactionCount = (reactions: Record<string, ChatReaction[]> | undefined, type: ChatReaction['type']) => {
+    return reactions?.[type]?.length || 0;
+  };
+
+  const hasUserReacted = (reactions: Record<string, ChatReaction[]> | undefined, type: ChatReaction['type']) => {
+    return reactions?.[type]?.some(r => r.userId === currentUser?.id) || false;
   };
 
   const onlineUsers = users.filter(u => u.isOnline);
@@ -268,7 +313,44 @@ const GroupChat: React.FC = () => {
                     {message.timestamp.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
                   </span>
                 </div>
-                <p className="text-gray-700">{message.message}</p>
+                <p className="text-gray-700 mb-3">{message.message}</p>
+                
+                {/* Reaction Buttons */}
+                <div className="flex items-center gap-1 flex-wrap">
+                  {(['like', 'heart', 'wow', 'pray'] as const).map((reactionType) => {
+                    const count = getReactionCount(message.reactions, reactionType);
+                    const hasReacted = hasUserReacted(message.reactions, reactionType);
+                    
+                    return (
+                      <button
+                        key={reactionType}
+                        onClick={() => handleReaction(message.id, reactionType)}
+                        className={`flex items-center gap-1 px-2 py-1 rounded-full text-xs transition-colors ${
+                          hasReacted
+                            ? 'bg-primary-100 text-primary-700 border border-primary-200'
+                            : 'bg-gray-100 text-gray-600 hover:bg-gray-200 border border-gray-200'
+                        }`}
+                        title={`${reactionType.charAt(0).toUpperCase() + reactionType.slice(1)} this message`}
+                      >
+                        <span>{getReactionEmoji(reactionType)}</span>
+                        {count > 0 && <span className="font-medium">{count}</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Show who reacted */}
+                {message.reactions && Object.keys(message.reactions).length > 0 && (
+                  <div className="mt-2 text-xs text-gray-500">
+                    {Object.entries(message.reactions).map(([type, reactions]) => (
+                      reactions.length > 0 && (
+                        <div key={type} className="inline-block mr-3">
+                          {getReactionEmoji(type as ChatReaction['type'])} {reactions.map(r => r.userName).join(', ')}
+                        </div>
+                      )
+                    ))}
+                  </div>
+                )}
               </div>
             </div>
           </div>

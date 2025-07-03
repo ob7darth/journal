@@ -1,5 +1,11 @@
 import { io, Socket } from 'socket.io-client';
 
+export interface ChatReaction {
+  type: 'like' | 'heart' | 'wow' | 'pray';
+  userId: string;
+  userName: string;
+}
+
 export interface ChatMessage {
   id: string;
   user: string;
@@ -7,6 +13,7 @@ export interface ChatMessage {
   timestamp: Date;
   type: 'message' | 'prayer' | 'encouragement';
   userId?: string;
+  reactions?: Record<string, ChatReaction[]>; // reactions grouped by type
 }
 
 export interface ChatUser {
@@ -22,6 +29,7 @@ class ChatService {
   private messageCallbacks: ((message: ChatMessage) => void)[] = [];
   private userCallbacks: ((users: ChatUser[]) => void)[] = [];
   private connectionCallbacks: ((connected: boolean) => void)[] = [];
+  private reactionCallbacks: ((messageId: string, reactions: Record<string, ChatReaction[]>) => void)[] = [];
 
   // For demo purposes, we'll use localStorage to simulate real-time chat
   private storageKey = 'life-journal-chat-messages';
@@ -84,6 +92,10 @@ class ChatService {
         this.notifyUserCallbacks(users);
       });
 
+      this.socket.on('reaction', (data: { messageId: string, reactions: Record<string, ChatReaction[]> }) => {
+        this.notifyReactionCallbacks(data.messageId, data.reactions);
+      });
+
     } catch (error) {
       console.warn('Failed to connect to chat server, using demo mode:', error);
       this.useDemoMode();
@@ -139,7 +151,8 @@ class ChatService {
       message,
       timestamp: new Date(),
       type,
-      userId: this.currentUser.id
+      userId: this.currentUser.id,
+      reactions: {}
     };
 
     if (this.socket && this.isConnected) {
@@ -153,6 +166,54 @@ class ChatService {
       
       // Notify local callbacks immediately
       this.notifyMessageCallbacks(chatMessage);
+    }
+  }
+
+  async addReaction(messageId: string, reactionType: ChatReaction['type']): Promise<void> {
+    if (!this.currentUser) {
+      throw new Error('User not joined to chat');
+    }
+
+    const reaction: ChatReaction = {
+      type: reactionType,
+      userId: this.currentUser.id,
+      userName: this.currentUser.name
+    };
+
+    if (this.socket && this.isConnected) {
+      // Real server mode
+      this.socket.emit('reaction', { messageId, reaction });
+    } else {
+      // Demo mode - update localStorage
+      const messages = this.getStoredMessages();
+      const messageIndex = messages.findIndex(m => m.id === messageId);
+      
+      if (messageIndex >= 0) {
+        const message = messages[messageIndex];
+        if (!message.reactions) {
+          message.reactions = {};
+        }
+        if (!message.reactions[reactionType]) {
+          message.reactions[reactionType] = [];
+        }
+
+        // Check if user already reacted with this type
+        const existingReactionIndex = message.reactions[reactionType].findIndex(r => r.userId === this.currentUser!.id);
+        
+        if (existingReactionIndex >= 0) {
+          // Remove existing reaction (toggle off)
+          message.reactions[reactionType].splice(existingReactionIndex, 1);
+          if (message.reactions[reactionType].length === 0) {
+            delete message.reactions[reactionType];
+          }
+        } else {
+          // Add new reaction
+          message.reactions[reactionType].push(reaction);
+        }
+
+        localStorage.setItem(this.storageKey, JSON.stringify(messages));
+        this.notifyReactionCallbacks(messageId, message.reactions);
+      }
     }
   }
 
@@ -189,21 +250,36 @@ class ChatService {
           user: 'Sarah M.',
           message: 'Good morning everyone! Just finished Day 3 - the Beatitudes really spoke to my heart today.',
           timestamp: new Date(Date.now() - 3600000),
-          type: 'message'
+          type: 'message',
+          reactions: {
+            heart: [{ type: 'heart', userId: 'user2', userName: 'Mike R.' }],
+            pray: [{ type: 'pray', userId: 'user3', userName: 'Jennifer L.' }]
+          }
         },
         {
           id: '2',
           user: 'Mike R.',
           message: 'Praying for everyone in our group today. May God\'s word transform our hearts! 🙏',
           timestamp: new Date(Date.now() - 1800000),
-          type: 'prayer'
+          type: 'prayer',
+          reactions: {
+            pray: [
+              { type: 'pray', userId: 'user1', userName: 'Sarah M.' },
+              { type: 'pray', userId: 'user3', userName: 'Jennifer L.' }
+            ],
+            heart: [{ type: 'heart', userId: 'user1', userName: 'Sarah M.' }]
+          }
         },
         {
           id: '3',
           user: 'Jennifer L.',
           message: 'The verse about being "salt and light" in Matthew 5:13-16 is challenging me to live differently.',
           timestamp: new Date(Date.now() - 900000),
-          type: 'message'
+          type: 'message',
+          reactions: {
+            like: [{ type: 'like', userId: 'user2', userName: 'Mike R.' }],
+            wow: [{ type: 'wow', userId: 'user1', userName: 'Sarah M.' }]
+          }
         }
       ];
       localStorage.setItem(this.storageKey, JSON.stringify(sampleMessages));
@@ -251,6 +327,10 @@ class ChatService {
     this.connectionCallbacks.push(callback);
   }
 
+  onReaction(callback: (messageId: string, reactions: Record<string, ChatReaction[]>) => void) {
+    this.reactionCallbacks.push(callback);
+  }
+
   private notifyMessageCallbacks(message: ChatMessage) {
     this.messageCallbacks.forEach(callback => callback(message));
   }
@@ -261,6 +341,10 @@ class ChatService {
 
   private notifyConnectionCallbacks(connected: boolean) {
     this.connectionCallbacks.forEach(callback => callback(connected));
+  }
+
+  private notifyReactionCallbacks(messageId: string, reactions: Record<string, ChatReaction[]>) {
+    this.reactionCallbacks.forEach(callback => callback(messageId, reactions));
   }
 
   private generateMessageId(): string {
