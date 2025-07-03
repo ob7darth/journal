@@ -43,7 +43,7 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           }`}
         >
           <div className="w-32 h-32 mx-auto mb-6 relative">
-            <div className="absolute inset-0 bg-primary-600 rounded-lg shadow-lg"></div>
+            <div className="absolute inset-0 bg-white rounded-lg shadow-lg"></div>
             <img 
               src="/dove icon.png" 
               alt="Life Journal" 
