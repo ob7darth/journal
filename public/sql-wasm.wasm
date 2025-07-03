@@ -1,3 +1,0 @@
-// This is a placeholder for the SQL.js WASM file
-// In production, you would copy the actual sql-wasm.wasm file here
-// from node_modules/sql.js/dist/sql-wasm.wasm
