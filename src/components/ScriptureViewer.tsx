@@ -17,42 +17,20 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<boolean>(false);
 
-  // Format passage display to show chapter ranges when appropriate
-  const formatPassageDisplay = (passage: Passage): string => {
-    const { book, chapter, verses } = passage;
-    
-    // Check if this represents a chapter range by looking at the verses field
-    // When we have consecutive chapters, verses will be "1-50" and we need to determine the range
-    if (verses === "1-50" || verses === "1-176") {
-      // This indicates a chapter range - we need to extract the range from the original data
-      // For now, we'll check if the passage represents multiple chapters by looking at common patterns
-      
-      // Since the parsing logic groups consecutive chapters but stores only the first chapter number,
-      // we need a way to determine the actual range. Let's use a different approach:
-      // We'll assume that if verses is "1-50", it might be a chapter range
-      
-      // For single chapters, just show the chapter
-      return `${book} ${chapter}`;
-    }
-    
-    // For specific verse ranges, show chapter:verses
-    return `${book} ${chapter}:${verses}`;
-  };
-
-  // We need to modify this to handle the actual range data
-  // Let's create a better approach by checking the passage data structure
+  // Use the displayText if available, otherwise format as chapter only
   const getDisplayText = (): string => {
-    const { book, chapter, verses } = passage;
-    
-    // If we have a range indicator in the verses field or if this is a full chapter
-    if (verses === "1-50" || verses === "1-176") {
-      // For full chapters, just show the chapter number
-      // The range information should come from the parsing logic
-      return `${book} ${chapter}`;
+    if (passage.displayText) {
+      return passage.displayText;
     }
     
-    // For specific verses
-    return `${book} ${chapter}:${verses}`;
+    // Fallback: just show book and chapter (no verses)
+    const { book, chapter, endChapter } = passage;
+    
+    if (endChapter && endChapter !== chapter) {
+      return `${book} ${chapter}-${endChapter}`;
+    }
+    
+    return `${book} ${chapter}`;
   };
 
   const formattedPassage = getDisplayText();
