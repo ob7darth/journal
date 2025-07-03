@@ -1,6 +1,6 @@
 // Simple Bible data loader without SQL.js dependencies
 
-import { bibleService, BibleVerse } from '../services/BibleService';
+import { bibleService } from '../services/BibleService';
 
 export interface BibleDataSource {
   name: string;

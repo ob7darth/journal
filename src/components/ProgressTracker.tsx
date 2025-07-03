@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle, Calendar } from 'lucide-react';
-import { format, addDays, startOfYear } from 'date-fns';
+import { format, addDays } from 'date-fns';
 import { ReadingPlan } from '../types/ReadingPlan';
 import { SOAPEntry } from '../types/SOAPEntry';
 
