@@ -43,14 +43,26 @@ const SplashScreen: React.FC<SplashScreenProps> = ({ onComplete }) => {
           }`}
         >
           <div className="w-32 h-32 mx-auto mb-6 relative">
-            <div className="absolute inset-0 bg-white rounded-lg shadow-lg"></div>
             <img 
               src="/dove icon.png" 
               alt="Life Journal" 
-              className="w-full h-full object-contain rounded-lg p-2"
+              className="w-full h-full object-contain drop-shadow-lg"
+              onError={(e) => {
+                console.log('Dove icon failed to load');
+                // Show fallback if image doesn't load
+                e.currentTarget.style.display = 'none';
+                const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                if (fallback) fallback.style.display = 'flex';
+              }}
             />
-            {/* Subtle glow effect */}
-            <div className="absolute inset-0 bg-gradient-to-br from-primary-200/30 to-warm-200/30 rounded-lg animate-pulse"></div>
+            {/* Fallback icon if image doesn't load */}
+            <div className="absolute inset-0 hidden items-center justify-center">
+              <div className="w-24 h-24 bg-primary-600 rounded-full flex items-center justify-center shadow-lg">
+                <svg className="w-12 h-12 text-white" fill="currentColor" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                </svg>
+              </div>
+            </div>
           </div>
         </div>
 
