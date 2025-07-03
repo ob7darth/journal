@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { format, addDays, startOfYear } from 'date-fns';
-import { Book, Calendar, PenTool, ChevronLeft, ChevronRight, MessageCircle, ExternalLink, Home, User } from 'lucide-react';
+import { Book, Calendar, PenTool, ChevronLeft, ChevronRight, MessageCircle, ExternalLink, Home } from 'lucide-react';
 import { ReadingPlan } from './types/ReadingPlan';
 import { SOAPEntry } from './types/SOAPEntry';
 import { authService, User as AuthUser } from './services/AuthService';
@@ -46,7 +46,7 @@ function App() {
     authService.onAuthChange((authState) => {
       setUser(authState.user);
       if (authState.user) {
-        loadUserEntries(authState.user);
+        loadUserEntries();
       }
     });
 
@@ -54,7 +54,7 @@ function App() {
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
       setUser(currentUser);
-      loadUserEntries(currentUser);
+      loadUserEntries();
     } else {
       // Show auth modal after splash screen
       setTimeout(() => {
@@ -66,7 +66,7 @@ function App() {
   }, []);
 
   // Load user-specific entries
-  const loadUserEntries = (user: AuthUser) => {
+  const loadUserEntries = () => {
     const storageKey = authService.getStorageKey('soap-entries');
     const saved = localStorage.getItem(storageKey);
     if (saved) {
@@ -103,7 +103,7 @@ function App() {
     // Reload entries for the new user
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
-      loadUserEntries(currentUser);
+      loadUserEntries();
     }
   };
 

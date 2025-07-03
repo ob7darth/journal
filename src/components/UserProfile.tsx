@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User, Settings, LogOut, Upload, Shield, Calendar, Award } from 'lucide-react';
+import { User, LogOut, Upload, Shield, Calendar, Award } from 'lucide-react';
 import { authService } from '../services/AuthService';
 import AuthModal from './AuthModal';
 
