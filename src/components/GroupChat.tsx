@@ -1,85 +1,78 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Users } from 'lucide-react';
-
-interface ChatMessage {
-  id: string;
-  user: string;
-  message: string;
-  timestamp: Date;
-  type: 'message' | 'prayer' | 'encouragement';
-}
+import { Send, Users, Wifi, WifiOff } from 'lucide-react';
+import { chatService, ChatMessage, ChatUser } from '../services/ChatService';
 
 const GroupChat: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [users, setUsers] = useState<ChatUser[]>([]);
   const [newMessage, setNewMessage] = useState('');
   const [userName, setUserName] = useState('');
   const [isJoined, setIsJoined] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isConnecting, setIsConnecting] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // Sample messages for demonstration
   useEffect(() => {
-    const sampleMessages: ChatMessage[] = [
-      {
-        id: '1',
-        user: 'Sarah M.',
-        message: 'Good morning everyone! Just finished Day 3 - the Beatitudes really spoke to my heart today.',
-        timestamp: new Date(Date.now() - 3600000),
-        type: 'message'
-      },
-      {
-        id: '2',
-        user: 'Mike R.',
-        message: 'Praying for everyone in our group today. May God\'s word transform our hearts! 🙏',
-        timestamp: new Date(Date.now() - 1800000),
-        type: 'prayer'
-      },
-      {
-        id: '3',
-        user: 'Jennifer L.',
-        message: 'The verse about being "salt and light" in Matthew 5:13-16 is challenging me to live differently.',
-        timestamp: new Date(Date.now() - 900000),
-        type: 'message'
-      },
-      {
-        id: '4',
-        user: 'David K.',
-        message: 'You\'re doing great, Jennifer! That\'s exactly what God wants - transformation through His word! 💪',
-        timestamp: new Date(Date.now() - 300000),
-        type: 'encouragement'
-      }
-    ];
-    setMessages(sampleMessages);
+    // Set up chat service callbacks
+    chatService.onMessage((message) => {
+      setMessages(prev => [...prev, message]);
+    });
+
+    chatService.onUsers((userList) => {
+      setUsers(userList);
+    });
+
+    chatService.onConnection((connected) => {
+      setIsConnected(connected);
+      setIsConnecting(false);
+    });
+
+    // Try to connect to server (will fall back to demo mode if server unavailable)
+    setIsConnecting(true);
+    chatService.connectToServer().catch(() => {
+      // Fallback to demo mode
+      setIsConnected(true);
+      setIsConnecting(false);
+    });
+
+    // Load initial data
+    setMessages(chatService.getMessages());
+    setUsers(chatService.getUsers());
+
+    return () => {
+      chatService.disconnect();
+    };
   }, []);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
-  const handleJoinChat = () => {
+  const handleJoinChat = async () => {
     if (userName.trim()) {
-      setIsJoined(true);
-      const joinMessage: ChatMessage = {
-        id: Date.now().toString(),
-        user: 'System',
-        message: `${userName} joined the group chat`,
-        timestamp: new Date(),
-        type: 'message'
-      };
-      setMessages(prev => [...prev, joinMessage]);
+      try {
+        await chatService.joinChat(userName.trim());
+        setIsJoined(true);
+      } catch (error) {
+        console.error('Failed to join chat:', error);
+        alert('Failed to join chat. Please try again.');
+      }
     }
   };
 
-  const handleSendMessage = () => {
-    if (newMessage.trim() && userName) {
-      const message: ChatMessage = {
-        id: Date.now().toString(),
-        user: userName,
-        message: newMessage.trim(),
-        timestamp: new Date(),
-        type: newMessage.toLowerCase().includes('pray') ? 'prayer' : 'message'
-      };
-      setMessages(prev => [...prev, message]);
-      setNewMessage('');
+  const handleSendMessage = async () => {
+    if (newMessage.trim()) {
+      try {
+        const messageType = newMessage.toLowerCase().includes('pray') ? 'prayer' : 
+                           newMessage.toLowerCase().includes('encourage') || newMessage.toLowerCase().includes('bless') ? 'encouragement' : 
+                           'message';
+        
+        await chatService.sendMessage(newMessage.trim(), messageType);
+        setNewMessage('');
+      } catch (error) {
+        console.error('Failed to send message:', error);
+        alert('Failed to send message. Please try again.');
+      }
     }
   };
 
@@ -116,6 +109,8 @@ const GroupChat: React.FC = () => {
     }
   };
 
+  const onlineUsers = users.filter(u => u.isOnline);
+
   if (!isJoined) {
     return (
       <div className="bg-white rounded-xl shadow-sm p-6">
@@ -125,6 +120,26 @@ const GroupChat: React.FC = () => {
           </div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Join Group Chat</h2>
           <p className="text-gray-600">Connect with others on the same Bible reading journey</p>
+          
+          {/* Connection Status */}
+          <div className="flex items-center justify-center gap-2 mt-4">
+            {isConnecting ? (
+              <>
+                <div className="w-4 h-4 border-2 border-primary-600 border-t-transparent rounded-full animate-spin"></div>
+                <span className="text-sm text-gray-600">Connecting...</span>
+              </>
+            ) : isConnected ? (
+              <>
+                <Wifi className="text-green-600" size={16} />
+                <span className="text-sm text-green-600">Connected</span>
+              </>
+            ) : (
+              <>
+                <WifiOff className="text-yellow-600" size={16} />
+                <span className="text-sm text-yellow-600">Demo Mode</span>
+              </>
+            )}
+          </div>
         </div>
 
         <div className="max-w-sm mx-auto">
@@ -142,10 +157,10 @@ const GroupChat: React.FC = () => {
           />
           <button
             onClick={handleJoinChat}
-            disabled={!userName.trim()}
+            disabled={!userName.trim() || isConnecting}
             className="w-full mt-4 bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
           >
-            Join Chat
+            {isConnecting ? 'Connecting...' : 'Join Chat'}
           </button>
         </div>
 
@@ -158,6 +173,14 @@ const GroupChat: React.FC = () => {
             <li>• Be respectful and kind to all members</li>
           </ul>
         </div>
+
+        {!isConnected && (
+          <div className="mt-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <p className="text-sm text-yellow-800">
+              <strong>Demo Mode:</strong> Chat server unavailable. Messages will be stored locally for demonstration.
+            </p>
+          </div>
+        )}
       </div>
     );
   }
@@ -173,14 +196,43 @@ const GroupChat: React.FC = () => {
             </div>
             <div>
               <h2 className="font-semibold text-gray-900">Bible Study Group</h2>
-              <p className="text-sm text-gray-500">4 members online</p>
+              <p className="text-sm text-gray-500">{onlineUsers.length} members online</p>
             </div>
           </div>
           <div className="flex items-center gap-2">
-            <span className="w-2 h-2 bg-green-500 rounded-full"></span>
-            <span className="text-sm text-gray-600">Online</span>
+            {isConnected ? (
+              <>
+                <Wifi className="text-green-500" size={16} />
+                <span className="text-sm text-green-600">Live</span>
+              </>
+            ) : (
+              <>
+                <WifiOff className="text-yellow-500" size={16} />
+                <span className="text-sm text-yellow-600">Demo</span>
+              </>
+            )}
           </div>
         </div>
+
+        {/* Online Users */}
+        {onlineUsers.length > 0 && (
+          <div className="mt-3 flex flex-wrap gap-2">
+            {onlineUsers.slice(0, 5).map((user) => (
+              <div
+                key={user.id}
+                className="flex items-center gap-1 bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs"
+              >
+                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                {user.name}
+              </div>
+            ))}
+            {onlineUsers.length > 5 && (
+              <div className="text-xs text-gray-500 px-2 py-1">
+                +{onlineUsers.length - 5} more
+              </div>
+            )}
+          </div>
+        )}
       </div>
 
       {/* Messages */}
@@ -229,13 +281,13 @@ const GroupChat: React.FC = () => {
         
         <div className="flex gap-2 mt-2">
           <button
-            onClick={() => setNewMessage(newMessage + '🙏 ')}
+            onClick={() => setNewMessage(newMessage + '🙏 Praying for ')}
             className="text-sm bg-purple-100 text-purple-700 px-3 py-1 rounded-full hover:bg-purple-200 transition-colors"
           >
             🙏 Prayer
           </button>
           <button
-            onClick={() => setNewMessage(newMessage + '💪 ')}
+            onClick={() => setNewMessage(newMessage + '💪 You\'re doing great! ')}
             className="text-sm bg-green-100 text-green-700 px-3 py-1 rounded-full hover:bg-green-200 transition-colors"
           >
             💪 Encouragement
