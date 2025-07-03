@@ -17,7 +17,23 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<boolean>(false);
 
-  const formattedPassage = `${passage.book} ${passage.chapter}:${passage.verses}`;
+  // Format passage display to show chapter ranges when appropriate
+  const formatPassageDisplay = (passage: Passage): string => {
+    const { book, chapter, verses } = passage;
+    
+    // Check if this represents a chapter range by looking at the original reading data
+    // For ranges like "Gen. 1-2", we want to show "Genesis 1-2"
+    if (verses === "1-50" || verses === "1-176") {
+      // This is likely a chapter range - we need to determine the end chapter
+      // For now, we'll show it as a single chapter, but this could be enhanced
+      // to track the actual range from the parsing
+      return `${book} ${chapter}`;
+    }
+    
+    return `${book} ${chapter}:${verses}`;
+  };
+
+  const formattedPassage = formatPassageDisplay(passage);
   const bibleGatewayUrl = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(formattedPassage)}&version=${version}`;
 
   useEffect(() => {
