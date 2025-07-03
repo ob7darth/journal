@@ -1,6 +1,6 @@
 import React from 'react';
 import { CheckCircle, Calendar } from 'lucide-react';
-import { format } from 'date-fns';
+import { format, addDays, startOfYear } from 'date-fns';
 import { ReadingPlan } from '../types/ReadingPlan';
 import { SOAPEntry } from '../types/SOAPEntry';
 
@@ -20,11 +20,13 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
   const totalDays = readingPlan.days.length;
   const completionRate = Math.round((completedDays / totalDays) * 100);
 
-  // Group days by month for better organization
+  // Group days by month for better organization - using 2025
   const daysByMonth = readingPlan.days.reduce((acc, day) => {
-    const date = new Date(day.date);
-    const monthKey = format(date, 'yyyy-MM');
-    const monthName = format(date, 'MMMM yyyy');
+    // Calculate the actual date for 2025
+    const startDate = new Date(2025, 0, 1); // January 1, 2025
+    const actualDate = addDays(startDate, day.day - 1);
+    const monthKey = format(actualDate, 'yyyy-MM');
+    const monthName = format(actualDate, 'MMMM yyyy');
     
     if (!acc[monthKey]) {
       acc[monthKey] = {
@@ -32,9 +34,12 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
         days: []
       };
     }
-    acc[monthKey].days.push(day);
+    acc[monthKey].days.push({
+      ...day,
+      actualDate // Add the calculated date
+    });
     return acc;
-  }, {} as Record<string, { name: string; days: typeof readingPlan.days }>);
+  }, {} as Record<string, { name: string; days: Array<typeof readingPlan.days[0] & {actualDate: Date}> }>);
 
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
@@ -94,7 +99,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                 <div className="grid grid-cols-7 gap-1">
                   {month.days.map((day) => {
                     const isCompleted = !!soapEntries[day.day];
-                    const dayOfMonth = new Date(day.date).getDate();
+                    const dayOfMonth = day.actualDate.getDate();
                     
                     return (
                       <button
@@ -105,7 +110,7 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                             ? 'bg-green-500 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
-                        title={`Day ${day.day} - ${format(new Date(day.date), 'MMM d')}`}
+                        title={`Day ${day.day} - ${format(day.actualDate, 'MMM d, yyyy')}`}
                       >
                         {dayOfMonth}
                         {isCompleted && (
