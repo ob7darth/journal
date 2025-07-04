@@ -29,11 +29,11 @@ const ResourcesPanel: React.FC = () => {
     },
     {
       title: 'NHI Plus',
-      description: 'Inspiring Christian sermons and classes',
+      description: 'Inspiring Legacy Sermons and Classes',
       url: 'https://www.nhiplus.org',
       icon: Play,
       color: 'bg-red-500',
-      features: ['Legacy Sermons', 'Sermon Podcasts', 'Inspirational Content', 'Leadership Content']
+      features: ['Classic Sermons by Wayne Cordeiro', 'Leadership Classes', 'Sermon Podcasts']
     }
   ];
 
