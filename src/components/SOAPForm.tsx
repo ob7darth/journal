@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { Save, ArrowLeft, BookOpen, Share2, Search, Clock } from 'lucide-react';
 import { DailyReading } from '../types/ReadingPlan';
 import { SOAPEntry } from '../types/SOAPEntry';
@@ -14,6 +14,23 @@ interface SOAPFormProps {
   onShare?: (entry: SOAPEntry) => void;
 }
 
+// Custom hook for auto-expanding textarea
+const useAutoExpandTextarea = (value: string) => {
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
+
+  useEffect(() => {
+    const textarea = textareaRef.current;
+    if (textarea) {
+      // Reset height to auto to get the correct scrollHeight
+      textarea.style.height = 'auto';
+      // Set height to scrollHeight to expand as needed
+      textarea.style.height = `${Math.max(textarea.scrollHeight, 96)}px`; // Minimum 96px (h-24)
+    }
+  }, [value]);
+
+  return textareaRef;
+};
+
 const SOAPForm: React.FC<SOAPFormProps> = ({ 
   day, 
   reading, 
@@ -28,6 +45,12 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
   const [prayer, setPrayer] = useState(existingEntry?.prayer || '');
   const [isSaving, setIsSaving] = useState(false);
   const [showBibleSearch, setShowBibleSearch] = useState(false);
+
+  // Auto-expanding textarea refs
+  const scriptureRef = useAutoExpandTextarea(scripture);
+  const observationRef = useAutoExpandTextarea(observation);
+  const applicationRef = useAutoExpandTextarea(application);
+  const prayerRef = useAutoExpandTextarea(prayer);
 
   // Check if entry is complete (all fields filled)
   const isComplete = scripture.trim() && observation.trim() && application.trim() && prayer.trim();
@@ -202,10 +225,12 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           )}
           
           <textarea
+            ref={scriptureRef}
             value={scripture}
             onChange={(e) => setScripture(e.target.value)}
             placeholder="Write the verse that spoke to you today... (You can save and come back to this later)"
-            className="textarea-field h-24"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-colors resize-none overflow-hidden"
+            style={{ minHeight: '96px' }}
             rows={3}
           />
         </div>
@@ -219,10 +244,12 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
             </span>
           </label>
           <textarea
+            ref={observationRef}
             value={observation}
             onChange={(e) => setObservation(e.target.value)}
             placeholder="What do you observe about this scripture? What is the context? What is God saying? (You can save your progress and continue later)"
-            className="textarea-field h-32"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-colors resize-none overflow-hidden"
+            style={{ minHeight: '128px' }}
             rows={4}
           />
         </div>
@@ -236,10 +263,12 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
             </span>
           </label>
           <textarea
+            ref={applicationRef}
             value={application}
             onChange={(e) => setApplication(e.target.value)}
             placeholder="How can you apply this to your life today? What changes might God be calling you to make? (Save your thoughts as you go)"
-            className="textarea-field h-32"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-colors resize-none overflow-hidden"
+            style={{ minHeight: '128px' }}
             rows={4}
           />
         </div>
@@ -253,10 +282,12 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
             </span>
           </label>
           <textarea
+            ref={prayerRef}
             value={prayer}
             onChange={(e) => setPrayer(e.target.value)}
             placeholder="Write a prayer based on what you've learned today... (Your progress is automatically saved)"
-            className="textarea-field h-32"
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-colors resize-none overflow-hidden"
+            style={{ minHeight: '128px' }}
             rows={4}
           />
         </div>
@@ -265,6 +296,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
         <div className="p-4 bg-blue-50 rounded-lg">
           <h4 className="font-semibold text-blue-900 mb-2">💡 Study Tips</h4>
           <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Text boxes expand automatically as you type - write as much as you need!</li>
             <li>• You can save your progress at any time and continue later</li>
             <li>• Fill out sections as you feel led - there's no pressure to complete everything at once</li>
             <li>• Your entries are automatically saved to your device</li>
