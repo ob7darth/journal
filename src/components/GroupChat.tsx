@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { Send, Users, Wifi, WifiOff, Heart, ThumbsUp } from 'lucide-react';
+import { Send, Users, Wifi, WifiOff } from 'lucide-react';
 import { chatService, ChatMessage, ChatUser, ChatReaction } from '../services/ChatService';
 import { authService } from '../services/AuthService';
 

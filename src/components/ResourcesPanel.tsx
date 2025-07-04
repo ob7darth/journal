@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { ExternalLink, Heart, Users, Play, GraduationCap, ShoppingCart } from 'lucide-react';
 
 const ResourcesPanel: React.FC = () => {
