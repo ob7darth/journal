@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { ExternalLink, Heart, Users } from 'lucide-react';
+import { ExternalLink, Heart, Users, Play, GraduationCap, ShoppingCart } from 'lucide-react';
 
 const ResourcesPanel: React.FC = () => {
   const resources = [
@@ -15,7 +15,7 @@ const ResourcesPanel: React.FC = () => {
       title: 'New Hope Christian College',
       description: 'Equipping students for ministry and life',
       url: 'https://www.newhope.edu',
-      icon: Users,
+      icon: GraduationCap,
       color: 'bg-green-500',
       features: ['Degree Programs', 'Online Courses', 'Campus Life', 'Admissions']
     },
@@ -23,16 +23,24 @@ const ResourcesPanel: React.FC = () => {
       title: 'Life Resources',
       description: 'Christian books, journals, and study materials',
       url: 'https://www.liferesources.cc',
-      icon: ExternalLink,
+      icon: ShoppingCart,
       color: 'bg-purple-500',
       features: ['Physical SOAP Journal', 'Study Guides', 'Christian Books', 'Gift Items']
+    },
+    {
+      title: 'NHI Plus',
+      description: 'Inspiring Christian movies and entertainment',
+      url: 'https://www.nhiplus.org',
+      icon: Play,
+      color: 'bg-red-500',
+      features: ['Christian Movies', 'Family Entertainment', 'Inspirational Content', 'Streaming Platform']
     }
   ];
 
   return (
     <div className="space-y-6">
       {/* Main Resources */}
-      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-3">
+      <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4">
         {resources.map((resource, index) => (
           <div key={index} className="bg-white rounded-xl shadow-sm overflow-hidden hover:shadow-md transition-shadow">
             <div className={`${resource.color} p-4`}>
