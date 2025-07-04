@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Save, ArrowLeft, BookOpen, Share2, Search } from 'lucide-react';
+import { Save, ArrowLeft, BookOpen, Share2, Search, Clock } from 'lucide-react';
 import { DailyReading } from '../types/ReadingPlan';
 import { SOAPEntry } from '../types/SOAPEntry';
 import { BibleVerse } from '../services/BibleService';
@@ -29,9 +29,15 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
   const [isSaving, setIsSaving] = useState(false);
   const [showBibleSearch, setShowBibleSearch] = useState(false);
 
+  // Check if entry is complete (all fields filled)
+  const isComplete = scripture.trim() && observation.trim() && application.trim() && prayer.trim();
+  
+  // Check if there's any content to save
+  const hasContent = scripture.trim() || observation.trim() || application.trim() || prayer.trim();
+
   const handleSave = async () => {
-    if (!scripture.trim() || !observation.trim() || !application.trim() || !prayer.trim()) {
-      alert('Please fill in all fields before saving.');
+    if (!hasContent) {
+      alert('Please add some content before saving.');
       return;
     }
 
@@ -53,13 +59,17 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
     onSave(day, entry);
     setIsSaving(false);
     
-    // Show success message
-    alert('Your SOAP entry has been saved!');
+    // Show appropriate success message
+    if (isComplete) {
+      alert('Your SOAP entry has been saved!');
+    } else {
+      alert('Your progress has been saved! You can continue working on this entry later.');
+    }
   };
 
   const handleShare = () => {
-    if (!scripture.trim() || !observation.trim() || !application.trim() || !prayer.trim()) {
-      alert('Please complete your SOAP entry before sharing.');
+    if (!isComplete) {
+      alert('Please complete all sections of your SOAP entry before sharing.');
       return;
     }
 
@@ -82,6 +92,13 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
     setShowBibleSearch(false);
   };
 
+  const getFieldStatus = (value: string) => {
+    if (value.trim()) {
+      return { icon: '✓', color: 'text-green-600', bg: 'bg-green-50' };
+    }
+    return { icon: '○', color: 'text-gray-400', bg: 'bg-gray-50' };
+  };
+
   return (
     <div className="bg-white rounded-xl shadow-sm">
       {/* Header */}
@@ -94,9 +111,22 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
             <ArrowLeft size={20} />
             Back to Reading
           </button>
-          <h2 className="text-xl font-bold text-gray-900">
-            Day {day} SOAP Study
-          </h2>
+          <div className="flex items-center gap-3">
+            <h2 className="text-xl font-bold text-gray-900">
+              Day {day} SOAP Study
+            </h2>
+            {hasContent && !isComplete && (
+              <div className="flex items-center gap-1 text-sm text-yellow-600 bg-yellow-50 px-2 py-1 rounded-full">
+                <Clock size={14} />
+                In Progress
+              </div>
+            )}
+            {isComplete && (
+              <div className="flex items-center gap-1 text-sm text-green-600 bg-green-50 px-2 py-1 rounded-full">
+                ✓ Complete
+              </div>
+            )}
+          </div>
         </div>
         
         {/* Reading Reference */}
@@ -114,6 +144,35 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
             ))}
           </div>
         </div>
+
+        {/* Progress Indicator */}
+        <div className="mt-4 p-3 bg-blue-50 rounded-lg">
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-sm font-medium text-blue-900">Progress</span>
+            <span className="text-sm text-blue-700">
+              {[scripture, observation, application, prayer].filter(field => field.trim()).length}/4 sections
+            </span>
+          </div>
+          <div className="flex gap-2">
+            {[
+              { label: 'Scripture', value: scripture },
+              { label: 'Observation', value: observation },
+              { label: 'Application', value: application },
+              { label: 'Prayer', value: prayer }
+            ].map((field, index) => {
+              const status = getFieldStatus(field.value);
+              return (
+                <div
+                  key={index}
+                  className={`flex-1 text-center py-1 px-2 rounded text-xs ${status.bg} ${status.color}`}
+                  title={field.label}
+                >
+                  {status.icon}
+                </div>
+              );
+            })}
+          </div>
+        </div>
       </div>
 
       {/* Form */}
@@ -124,7 +183,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
             <label className="block text-sm font-semibold text-gray-800">
               📖 Scripture
               <span className="font-normal text-gray-600 ml-2">
-                Choose a verse that stands out to you
+                Choose a verse that stands out to you (optional)
               </span>
             </label>
             <button
@@ -145,7 +204,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           <textarea
             value={scripture}
             onChange={(e) => setScripture(e.target.value)}
-            placeholder="Write the verse that spoke to you today..."
+            placeholder="Write the verse that spoke to you today... (You can save and come back to this later)"
             className="textarea-field h-24"
             rows={3}
           />
@@ -156,13 +215,13 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           <label className="block text-sm font-semibold text-gray-800 mb-2">
             👁️ Observation
             <span className="font-normal text-gray-600 ml-2">
-              What is this passage saying?
+              What is this passage saying? (optional)
             </span>
           </label>
           <textarea
             value={observation}
             onChange={(e) => setObservation(e.target.value)}
-            placeholder="What do you observe about this scripture? What is the context? What is God saying?"
+            placeholder="What do you observe about this scripture? What is the context? What is God saying? (You can save your progress and continue later)"
             className="textarea-field h-32"
             rows={4}
           />
@@ -173,13 +232,13 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           <label className="block text-sm font-semibold text-gray-800 mb-2">
             🎯 Application
             <span className="font-normal text-gray-600 ml-2">
-              How does this apply to your life?
+              How does this apply to your life? (optional)
             </span>
           </label>
           <textarea
             value={application}
             onChange={(e) => setApplication(e.target.value)}
-            placeholder="How can you apply this to your life today? What changes might God be calling you to make?"
+            placeholder="How can you apply this to your life today? What changes might God be calling you to make? (Save your thoughts as you go)"
             className="textarea-field h-32"
             rows={4}
           />
@@ -190,23 +249,34 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           <label className="block text-sm font-semibold text-gray-800 mb-2">
             🙏 Prayer
             <span className="font-normal text-gray-600 ml-2">
-              Talk to God about what you learned
+              Talk to God about what you learned (optional)
             </span>
           </label>
           <textarea
             value={prayer}
             onChange={(e) => setPrayer(e.target.value)}
-            placeholder="Write a prayer based on what you've learned today..."
+            placeholder="Write a prayer based on what you've learned today... (Your progress is automatically saved)"
             className="textarea-field h-32"
             rows={4}
           />
+        </div>
+
+        {/* Helper Text */}
+        <div className="p-4 bg-blue-50 rounded-lg">
+          <h4 className="font-semibold text-blue-900 mb-2">💡 Study Tips</h4>
+          <ul className="text-sm text-blue-800 space-y-1">
+            <li>• You can save your progress at any time and continue later</li>
+            <li>• Fill out sections as you feel led - there's no pressure to complete everything at once</li>
+            <li>• Your entries are automatically saved to your device</li>
+            <li>• Complete all sections to unlock sharing with others</li>
+          </ul>
         </div>
 
         {/* Action Buttons */}
         <div className="pt-4 space-y-3">
           <button
             onClick={handleSave}
-            disabled={isSaving}
+            disabled={isSaving || !hasContent}
             className="btn-primary w-full flex items-center justify-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed"
           >
             {isSaving ? (
@@ -217,7 +287,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
             ) : (
               <>
                 <Save size={20} />
-                Save SOAP Entry
+                {isComplete ? 'Save Complete Entry' : hasContent ? 'Save Progress' : 'Save Entry'}
               </>
             )}
           </button>
@@ -225,10 +295,15 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           {onShare && (
             <button
               onClick={handleShare}
-              className="btn-secondary w-full flex items-center justify-center gap-2"
+              disabled={!isComplete}
+              className={`w-full flex items-center justify-center gap-2 py-3 px-4 rounded-lg font-medium transition-colors ${
+                isComplete
+                  ? 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  : 'bg-gray-100 text-gray-400 cursor-not-allowed'
+              }`}
             >
               <Share2 size={20} />
-              Share Entry
+              {isComplete ? 'Share Entry' : 'Complete Entry to Share'}
             </button>
           )}
         </div>
