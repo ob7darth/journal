@@ -111,8 +111,8 @@ const ResourcesPanel: React.FC = () => {
             <p className="text-sm text-gray-600">
               Having trouble with the app? Contact our support team for assistance.
             </p>
-            <a href="mailto:amy@enewhope.org" className="text-primary-600 hover:text-primary-700 text-sm">
-              amy@enewhope.org
+            <a href="mailto:amyhisaoka@enewhope.org" className="text-primary-600 hover:text-primary-700 text-sm">
+              amyhisaoka@enewhope.org
             </a>
           </div>
           <div>
