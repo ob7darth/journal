@@ -29,11 +29,11 @@ const ResourcesPanel: React.FC = () => {
     },
     {
       title: 'NHI Plus',
-      description: 'Inspiring Christian movies and entertainment',
+      description: 'Inspiring Christian sermons and classes',
       url: 'https://www.nhiplus.org',
       icon: Play,
       color: 'bg-red-500',
-      features: ['Christian Movies', 'Family Entertainment', 'Inspirational Content', 'Streaming Platform']
+      features: ['Legacy Sermons', 'Sermon Podcasts', 'Inspirational Content', 'Leadership Content']
     }
   ];
 
