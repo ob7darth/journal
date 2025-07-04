@@ -13,6 +13,7 @@ import ResourcesPanel from './components/ResourcesPanel';
 import SplashScreen from './components/SplashScreen';
 import AuthModal from './components/AuthModal';
 import UserProfile from './components/UserProfile';
+import InstallPrompt from './components/InstallPrompt';
 import { generateFullYearPlan } from './data/readingPlan';
 
 function App() {
@@ -305,6 +306,9 @@ function App() {
           <ResourcesPanel />
         )}
       </main>
+
+      {/* Install Prompt for PWA */}
+      <InstallPrompt />
 
       {/* Auth Modal */}
       {showAuthModal && (
