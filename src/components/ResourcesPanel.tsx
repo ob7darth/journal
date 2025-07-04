@@ -198,8 +198,8 @@ const ResourcesPanel: React.FC = () => {
                 <p className="text-sm text-gray-600">
                   Having trouble with the app? Contact our support team for assistance.
                 </p>
-                <a href="mailto:support@newhopewest.com" className="text-primary-600 hover:text-primary-700 text-sm">
-                  support@newhopewest.com
+                <a href="mailto:amy@enewhope.org" className="text-primary-600 hover:text-primary-700 text-sm">
+                  amy@enewhope.org
                 </a>
               </div>
               <div>
@@ -207,8 +207,8 @@ const ResourcesPanel: React.FC = () => {
                 <p className="text-sm text-gray-600">
                   Questions about your faith journey? Our pastoral team is here to help.
                 </p>
-                <a href="mailto:pastor@newhopewest.com" className="text-primary-600 hover:text-primary-700 text-sm">
-                  pastor@newhopewest.com
+                <a href="mailto:lesliekirakos@enewhope.org" className="text-primary-600 hover:text-primary-700 text-sm">
+                  lesliekirakos@enewhope.org
                 </a>
               </div>
             </div>
