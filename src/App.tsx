@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { format, addDays, startOfYear } from 'date-fns';
-import { Book, Calendar, PenTool, ChevronLeft, ChevronRight, MessageCircle, ExternalLink, Home } from 'lucide-react';
+import { Book, Calendar, PenTool, ChevronLeft, ChevronRight, ExternalLink, Home } from 'lucide-react';
 import { ReadingPlan } from './types/ReadingPlan';
 import { SOAPEntry } from './types/SOAPEntry';
 import { authService, User as AuthUser } from './services/AuthService';
@@ -9,7 +9,6 @@ import ReadingView from './components/ReadingView';
 import SOAPForm from './components/SOAPForm';
 import ProgressTracker from './components/ProgressTracker';
 import ShareModal from './components/ShareModal';
-import GroupChat from './components/GroupChat';
 import ResourcesPanel from './components/ResourcesPanel';
 import SplashScreen from './components/SplashScreen';
 import AuthModal from './components/AuthModal';
@@ -37,7 +36,7 @@ function App() {
   const [todaysDayOfYear] = useState(getTodaysDayOfYear());
   const [currentDay, setCurrentDay] = useState(todaysDayOfYear);
   const [soapEntries, setSoapEntries] = useState<Record<number, SOAPEntry>>({});
-  const [activeView, setActiveView] = useState<'reading' | 'soap' | 'progress' | 'chat' | 'resources'>('reading');
+  const [activeView, setActiveView] = useState<'reading' | 'soap' | 'progress' | 'resources'>('reading');
   const [showShareModal, setShowShareModal] = useState(false);
   const [entryToShare, setEntryToShare] = useState<SOAPEntry | null>(null);
 
@@ -257,17 +256,6 @@ function App() {
             Progress
           </button>
           <button
-            onClick={() => setActiveView('chat')}
-            className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md transition-colors whitespace-nowrap ${
-              activeView === 'chat' 
-                ? 'bg-primary-600 text-white' 
-                : 'text-gray-600 hover:text-gray-800'
-            }`}
-          >
-            <MessageCircle size={18} />
-            Chat
-          </button>
-          <button
             onClick={() => setActiveView('resources')}
             className={`flex-1 flex items-center justify-center gap-2 py-3 px-4 rounded-md transition-colors whitespace-nowrap ${
               activeView === 'resources' 
@@ -311,10 +299,6 @@ function App() {
             }}
             onShareEntry={handleShareEntry}
           />
-        )}
-
-        {activeView === 'chat' && (
-          <GroupChat />
         )}
 
         {activeView === 'resources' && (

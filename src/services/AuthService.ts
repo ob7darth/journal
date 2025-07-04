@@ -1,5 +1,3 @@
-import { chatService } from './ChatService';
-
 export interface User {
   id: string;
   email?: string;
@@ -181,9 +179,6 @@ class AuthService {
   }
 
   async signOut(): Promise<void> {
-    // Disconnect from chat
-    chatService.disconnect();
-    
     this.currentUser = null;
     this.saveAuth();
     this.notifyAuthCallbacks();
