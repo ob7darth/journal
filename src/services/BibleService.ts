@@ -55,6 +55,11 @@ class BibleService {
       v.book === book && v.chapter === chapter
     );
 
+    if (matchingVerses.length === 0) {
+      // Return null if no verses found
+      return null;
+    }
+
     // Return the matching verses if found, or empty array if not found
     return {
       book,

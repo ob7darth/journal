@@ -68,22 +68,27 @@ function App() {
 
   // Load user-specific entries
   const loadUserEntries = () => {
-    supabaseSOAPService.getAllEntries().then(entries => {
-      setSoapEntries(entries);
-    }).catch(error => {
-      console.error('Error loading SOAP entries:', error);
-    });
+    supabaseSOAPService.getAllEntries()
+      .then(entries => {
+        setSoapEntries(entries);
+      })
+      .catch(error => {
+        console.error('Error loading SOAP entries:', error);
+        // Don't show alert for loading errors, just log them
+      });
   };
 
   // Save entries with user-specific storage
   const saveSOAPEntry = (day: number, entry: SOAPEntry) => {
-    supabaseSOAPService.saveEntry(day, entry).then(() => {
-      const updated = { ...soapEntries, [day]: entry };
-      setSoapEntries(updated);
-    }).catch(error => {
-      console.error('Error saving SOAP entry:', error);
-      alert('Failed to save entry. Please try again.');
-    });
+    supabaseSOAPService.saveEntry(day, entry)
+      .then(() => {
+        const updated = { ...soapEntries, [day]: entry };
+        setSoapEntries(updated);
+      })
+      .catch(error => {
+        console.error('Error saving SOAP entry:', error);
+        // Error handling is now done in SOAPForm component
+      });
   };
 
   const handleShareEntry = (entry: SOAPEntry) => {

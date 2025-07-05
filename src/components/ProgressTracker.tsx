@@ -110,13 +110,15 @@ const ProgressTracker: React.FC<ProgressTrackerProps> = ({
                             ? 'bg-green-500 text-white'
                             : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
                         }`}
-                        title={`Day ${day.day} - ${format(day.actualDate, 'MMM d, yyyy')}`}
+                        title={`Day ${day.day} - ${format(day.actualDate, 'MMM d, yyyy')}${isCompleted ? ' (Completed)' : ''}`}
+                        aria-label={`Day ${day.day} - ${format(day.actualDate, 'MMM d, yyyy')}${isCompleted ? ' (Completed)' : ''}`}
                       >
                         {dayOfMonth}
                         {isCompleted && (
                           <CheckCircle 
                             size={10} 
                             className="absolute -top-1 -right-1 text-green-600 bg-white rounded-full" 
+                            aria-hidden="true"
                           />
                         )}
                       </button>

@@ -331,12 +331,18 @@ class SupabaseAuthService {
 
   // Load guest user from localStorage on app start
   loadGuestUser() {
-    if (!this.currentUser) {
+    if (!this.currentUser && !this.isInitialized) {
       const stored = localStorage.getItem('life-journal-guest-user');
       if (stored) {
         try {
-          this.currentUser = JSON.parse(stored);
-          this.notifyAuthCallbacks();
+          const guestUser = JSON.parse(stored);
+          // Validate guest user data
+          if (guestUser.isGuest && guestUser.id && guestUser.name) {
+            this.currentUser = guestUser;
+            this.notifyAuthCallbacks();
+          } else {
+            localStorage.removeItem('life-journal-guest-user');
+          }
         } catch (error) {
           console.error('Error loading guest user:', error);
           localStorage.removeItem('life-journal-guest-user');

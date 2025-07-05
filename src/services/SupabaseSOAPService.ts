@@ -16,7 +16,12 @@ class SupabaseSOAPService {
         day,
         ...entry
       };
-      localStorage.setItem('soap-entries', JSON.stringify(entries));
+      try {
+        localStorage.setItem('soap-entries', JSON.stringify(entries));
+      } catch (error) {
+        console.error('Failed to save to localStorage:', error);
+        throw new Error('Failed to save entry locally');
+      }
       return;
     }
 

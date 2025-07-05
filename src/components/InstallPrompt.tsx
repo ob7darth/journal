@@ -66,7 +66,7 @@ const InstallPrompt: React.FC = () => {
   };
 
   // Don't show if already installed or dismissed this session
-  if (isInstalled || !showPrompt || sessionStorage.getItem('installPromptDismissed')) {
+  if (isInstalled || !showPrompt || !deferredPrompt || sessionStorage.getItem('installPromptDismissed')) {
     return null;
   }
 

@@ -41,10 +41,11 @@ const Header: React.FC<HeaderProps> = ({ planName, currentDay, totalDays, user, 
               <button
                 onClick={onUserClick}
                 className="flex items-center gap-2 px-3 py-2 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
-                title="View Profile"
+                title={`View Profile - ${user.name}`}
+                aria-label={`View profile for ${user.name}`}
               >
                 <div className="w-8 h-8 bg-primary-100 rounded-full flex items-center justify-center">
-                  <User className="text-primary-600" size={16} />
+                  <User className="text-primary-600" size={16} aria-hidden="true" />
                 </div>
                 <div className="text-left hidden sm:block">
                   <p className="text-sm font-medium text-gray-900">{user.name}</p>

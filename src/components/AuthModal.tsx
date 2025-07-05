@@ -94,6 +94,10 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           errorMessage = 'Please check your email and click the confirmation link before signing in.';
         } else if (errorMessage.includes('User already registered')) {
           errorMessage = 'An account with this email already exists. Please sign in instead.';
+        } else if (errorMessage.includes('Email rate limit exceeded')) {
+          errorMessage = 'Too many email attempts. Please wait a few minutes before trying again.';
+        } else if (errorMessage.includes('Password should be at least')) {
+          errorMessage = 'Password must be at least 6 characters long.';
         }
       }
       

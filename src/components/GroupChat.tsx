@@ -45,7 +45,8 @@ const GroupChat: React.FC = () => {
 
     // Try to connect to server (will fall back to demo mode if server unavailable)
     setIsConnecting(true);
-    chatService.connectToServer().catch(() => {
+    chatService.connectToServer().catch((error) => {
+      console.warn('Chat connection failed:', error);
       // Fallback to demo mode
       setIsConnected(true);
       setIsConnecting(false);
@@ -56,13 +57,14 @@ const GroupChat: React.FC = () => {
       try {
         const initialMessages = await chatService.getMessages();
         setMessages(initialMessages);
+        const initialUsers = chatService.getUsers();
+        setUsers(initialUsers);
       } catch (error) {
         console.error('Failed to load initial messages:', error);
       }
     };
     
     loadInitialData();
-    setUsers(chatService.getUsers());
 
     // Auto-join if user is authenticated
     if (currentUser) {

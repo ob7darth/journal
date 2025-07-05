@@ -45,9 +45,14 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
       
       try {
         const result = await bibleService.getPassage(passage.book, passage.chapter, passage.verses);
-        setScripture(result);
+        if (result) {
+          setScripture(result);
+        } else {
+          setError('Scripture not found in local database.');
+        }
       } catch (err) {
-        setError('Unable to load scripture. Please try again later.');
+        const errorMessage = err instanceof Error ? err.message : 'Unable to load scripture. Please try again later.';
+        setError(errorMessage);
         console.error('Error fetching scripture:', err);
       } finally {
         setLoading(false);

@@ -66,27 +66,33 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
 
     setIsSaving(true);
     
-    const entry: SOAPEntry = {
-      day,
-      scripture: scripture.trim(),
-      observation: observation.trim(),
-      application: application.trim(),
-      prayer: prayer.trim(),
-      createdAt: existingEntry?.createdAt || new Date().toISOString(),
-      updatedAt: new Date().toISOString()
-    };
+    try {
+      const entry: SOAPEntry = {
+        day,
+        scripture: scripture.trim(),
+        observation: observation.trim(),
+        application: application.trim(),
+        prayer: prayer.trim(),
+        createdAt: existingEntry?.createdAt || new Date().toISOString(),
+        updatedAt: new Date().toISOString()
+      };
 
-    // Simulate save delay for better UX
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    onSave(day, entry);
-    setIsSaving(false);
-    
-    // Show appropriate success message
-    if (isComplete) {
-      alert('Your SOAP entry has been saved!');
-    } else {
-      alert('Your progress has been saved! You can continue working on this entry later.');
+      // Simulate save delay for better UX
+      await new Promise(resolve => setTimeout(resolve, 500));
+      
+      onSave(day, entry);
+      
+      // Show appropriate success message
+      if (isComplete) {
+        alert('Your SOAP entry has been saved!');
+      } else {
+        alert('Your progress has been saved! You can continue working on this entry later.');
+      }
+    } catch (error) {
+      console.error('Error saving SOAP entry:', error);
+      alert('Failed to save entry. Please try again.');
+    } finally {
+      setIsSaving(false);
     }
   };
 

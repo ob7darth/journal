@@ -66,10 +66,11 @@ const ResourcesPanel: React.FC = () => {
                 href={resource.url}
                 target="_blank"
                 rel="noopener noreferrer"
+                aria-label={`Visit ${resource.title} website`}
                 className="inline-flex items-center gap-2 bg-gray-900 text-white px-4 py-2 rounded-lg hover:bg-gray-800 transition-colors"
               >
                 Visit Website
-                <ExternalLink size={16} />
+                <ExternalLink size={16} aria-hidden="true" />
               </a>
             </div>
           </div>
