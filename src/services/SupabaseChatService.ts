@@ -1,4 +1,4 @@
-import { supabase, type ChatMessage as DBChatMessage, type ChatReaction as DBChatReaction } from '../lib/supabase';
+import { supabase, type ChatMessage as DBChatMessage } from '../lib/supabase';
 import { supabaseAuthService } from './SupabaseAuthService';
 
 export interface ChatReaction {

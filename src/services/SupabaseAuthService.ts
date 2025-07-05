@@ -1,5 +1,5 @@
-import { supabase, type Profile } from '../lib/supabase';
-import type { User, Session } from '@supabase/supabase-js';
+import { supabase } from '../lib/supabase';
+import type { User } from '@supabase/supabase-js';
 
 export interface AuthUser {
   id: string;
