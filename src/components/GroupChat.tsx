@@ -52,7 +52,16 @@ const GroupChat: React.FC = () => {
     });
 
     // Load initial data
-    setMessages(chatService.getMessages());
+    const loadInitialData = async () => {
+      try {
+        const initialMessages = await chatService.getMessages();
+        setMessages(initialMessages);
+      } catch (error) {
+        console.error('Failed to load initial messages:', error);
+      }
+    };
+    
+    loadInitialData();
     setUsers(chatService.getUsers());
 
     // Auto-join if user is authenticated
