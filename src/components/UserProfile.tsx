@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { User, LogOut, Upload, Shield, Calendar, Award } from 'lucide-react';
-import { authService } from '../services/AuthService';
+import { supabaseAuthService as authService } from '../services/SupabaseAuthService';
 import AuthModal from './AuthModal';
 
 interface UserProfileProps {

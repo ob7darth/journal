@@ -3,7 +3,8 @@ import { format, addDays, startOfYear } from 'date-fns';
 import { Book, Calendar, PenTool, ChevronLeft, ChevronRight, ExternalLink, Home } from 'lucide-react';
 import { ReadingPlan } from './types/ReadingPlan';
 import { SOAPEntry } from './types/SOAPEntry';
-import { authService, User as AuthUser } from './services/AuthService';
+import { supabaseAuthService as authService, AuthUser } from './services/SupabaseAuthService';
+import { supabaseSOAPService } from './services/SupabaseSOAPService';
 import Header from './components/Header';
 import ReadingView from './components/ReadingView';
 import SOAPForm from './components/SOAPForm';
@@ -67,25 +68,22 @@ function App() {
 
   // Load user-specific entries
   const loadUserEntries = () => {
-    const storageKey = authService.getStorageKey('soap-entries');
-    const saved = localStorage.getItem(storageKey);
-    if (saved) {
-      setSoapEntries(JSON.parse(saved));
-    }
+    supabaseSOAPService.getAllEntries().then(entries => {
+      setSoapEntries(entries);
+    }).catch(error => {
+      console.error('Error loading SOAP entries:', error);
+    });
   };
 
   // Save entries with user-specific storage
   const saveSOAPEntry = (day: number, entry: SOAPEntry) => {
-    const updated = { ...soapEntries, [day]: entry };
-    setSoapEntries(updated);
-    
-    const storageKey = authService.getStorageKey('soap-entries');
-    localStorage.setItem(storageKey, JSON.stringify(updated));
-
-    // Sync to cloud if member
-    if (user && !user.isGuest) {
-      authService.syncData().catch(console.error);
-    }
+    supabaseSOAPService.saveEntry(day, entry).then(() => {
+      const updated = { ...soapEntries, [day]: entry };
+      setSoapEntries(updated);
+    }).catch(error => {
+      console.error('Error saving SOAP entry:', error);
+      alert('Failed to save entry. Please try again.');
+    });
   };
 
   const handleShareEntry = (entry: SOAPEntry) => {

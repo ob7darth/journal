@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Send, Users, Wifi, WifiOff } from 'lucide-react';
-import { chatService, ChatMessage, ChatUser, ChatReaction } from '../services/ChatService';
-import { authService } from '../services/AuthService';
+import { supabaseChatService as chatService, ChatMessage, ChatUser, ChatReaction } from '../services/SupabaseChatService';
+import { supabaseAuthService as authService } from '../services/SupabaseAuthService';
 
 const GroupChat: React.FC = () => {
   const [messages, setMessages] = useState<ChatMessage[]>([]);

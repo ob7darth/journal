@@ -7,11 +7,45 @@ A comprehensive Bible reading and journaling application with live chat function
 - **Daily Bible Reading Plan**: Complete year-long reading plan with themed daily readings
 - **SOAP Study Method**: Scripture, Observation, Application, Prayer journaling
 - **Progress Tracking**: Visual calendar showing completed days and progress
+## Supabase Setup
 - **Live Group Chat**: Real-time chat with other users for encouragement and prayer
+This application uses Supabase for authentication and data storage.
 - **Bible Search**: Search through scripture verses
+### 1. Create a Supabase Project
+1. Go to [supabase.com](https://supabase.com)
+2. Create a new account or sign in
+3. Create a new project
+4. Wait for the project to be set up
 - **Sharing**: Share your SOAP entries with others
+### 2. Get Your Project Credentials
+1. Go to Settings → API in your Supabase dashboard
+2. Copy your Project URL and anon/public key
+3. Create a `.env` file in the project root:
+   ```
+   VITE_SUPABASE_URL=your_project_url_here
+   VITE_SUPABASE_ANON_KEY=your_anon_key_here
+   ```
 - **Resources**: Links to helpful Bible study resources
+### 3. Run Database Migrations
+1. Install the Supabase CLI: `npm install -g supabase`
+2. Login to Supabase: `supabase login`
+3. Link your project: `supabase link --project-ref your-project-ref`
+4. Run migrations: `supabase db push`
+- **Cloud Sync**: Supabase integration for cross-device synchronization
+### 4. Configure Authentication
+1. Go to Authentication → Settings in your Supabase dashboard
+2. Configure your site URL (e.g., `http://localhost:5173` for development)
+3. Enable email authentication
+4. Optionally configure social providers
+- **User Authentication**: Secure sign-up/sign-in with guest mode option
+### Database Schema
+The application creates the following tables:
+- `profiles` - User profile information
+- `soap_entries` - Daily SOAP study entries
+- `chat_messages` - Group chat messages
+- `chat_reactions` - Message reactions
 - **Progressive Web App**: Install on mobile devices like a native app
+All tables have Row Level Security (RLS) enabled to ensure users can only access their own data.
 
 ## Mobile App Installation
 
@@ -125,6 +159,10 @@ CORS_ORIGIN=https://your-app-domain.com
 # Install dependencies
 npm install
 
+# Set up environment variables
+cp .env.example .env
+# Edit .env with your Supabase credentials
+
 # Start development server
 npm run dev
 
@@ -178,6 +216,7 @@ The application can be easily embedded in WordPress using an iframe:
 ## Technology Stack
 
 - **Frontend**: React, TypeScript, Tailwind CSS
+- **Backend**: Supabase (PostgreSQL, Auth, Real-time)
 - **PWA**: Service Worker, Web App Manifest
 - **Chat**: Socket.IO for real-time communication
 - **Build Tool**: Vite
