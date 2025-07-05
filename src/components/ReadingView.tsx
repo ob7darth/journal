@@ -88,7 +88,7 @@ const ReadingView: React.FC<ReadingViewProps> = ({
           {hasSOAPEntry ? (
             <>
               <CheckCircle size={20} />
-              Edit SOAP Entry
+              View SOAP Entry
             </>
           ) : (
             <>
