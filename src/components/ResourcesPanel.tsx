@@ -1,5 +1,6 @@
 import React from 'react';
 import { ExternalLink, Heart, Users, Play, GraduationCap, ShoppingCart } from 'lucide-react';
+import PrayerRequestsList from './PrayerRequestsList';
 
 const ResourcesPanel: React.FC = () => {
   const resources = [
@@ -109,6 +110,15 @@ const ResourcesPanel: React.FC = () => {
             Small Groups
           </a>
         </div>
+      </div>
+
+      {/* Community Prayer Requests */}
+      <div>
+        <h3 className="text-xl font-semibold text-gray-900 mb-4 flex items-center gap-2">
+          <Heart className="text-red-600" size={24} />
+          Community Prayer Requests
+        </h3>
+        <PrayerRequestsList limit={5} showHeader={false} />
       </div>
 
       {/* Contact Information */}

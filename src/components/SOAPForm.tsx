@@ -1,9 +1,11 @@
 import React, { useState, useRef, useEffect } from 'react';
-import { Save, ArrowLeft, BookOpen, Share2, Search, Clock } from 'lucide-react';
+import { Save, ArrowLeft, BookOpen, Share2, Search, Clock, Heart, Plus } from 'lucide-react';
 import { DailyReading } from '../types/ReadingPlan';
 import { SOAPEntry } from '../types/SOAPEntry';
 import { BibleVerse } from '../services/BibleService';
 import BibleSearch from './BibleSearch';
+import PrayerRequestForm from './PrayerRequestForm';
+import PrayerRequestsList from './PrayerRequestsList';
 
 interface SOAPFormProps {
   day: number;
@@ -45,6 +47,8 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
   const [prayer, setPrayer] = useState(existingEntry?.prayer || '');
   const [isSaving, setIsSaving] = useState(false);
   const [showBibleSearch, setShowBibleSearch] = useState(false);
+  const [showPrayerForm, setShowPrayerForm] = useState(false);
+  const [showPrayerRequests, setShowPrayerRequests] = useState(false);
 
   // Auto-expanding textarea refs
   const scriptureRef = useAutoExpandTextarea(scripture);
@@ -345,7 +349,65 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
             </button>
           )}
         </div>
+
+        {/* Prayer Request Section */}
+        <div className="pt-6 border-t border-gray-200">
+          <div className="flex items-center justify-between mb-4">
+            <h3 className="text-lg font-semibold text-gray-900 flex items-center gap-2">
+              <Heart className="text-red-600" size={20} />
+              Prayer Requests
+            </h3>
+            <div className="flex gap-2">
+              <button
+                onClick={() => setShowPrayerRequests(!showPrayerRequests)}
+                className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
+              >
+                {showPrayerRequests ? 'Hide' : 'View All'}
+              </button>
+              <button
+                onClick={() => setShowPrayerForm(true)}
+                className="flex items-center gap-1 bg-red-600 text-white px-3 py-1 rounded-lg hover:bg-red-700 transition-colors text-sm"
+              >
+                <Plus size={14} />
+                Add Request
+              </button>
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            {/* Quick Prayer Request */}
+            <div className="p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-800 mb-3">
+                <strong>Need prayer?</strong> Share your request with the community. Others will pray for you and offer encouragement.
+              </p>
+              <button
+                onClick={() => setShowPrayerForm(true)}
+                className="w-full bg-red-600 text-white py-2 px-4 rounded-lg hover:bg-red-700 transition-colors text-sm font-medium"
+              >
+                Submit Prayer Request
+              </button>
+            </div>
+
+            {/* Prayer Requests List */}
+            {showPrayerRequests && (
+              <PrayerRequestsList limit={3} showHeader={false} />
+            )}
+          </div>
+        </div>
       </div>
+
+      {/* Prayer Request Form Modal */}
+      {showPrayerForm && (
+        <PrayerRequestForm
+          onClose={() => setShowPrayerForm(false)}
+          onSubmit={() => {
+            // Refresh prayer requests if they're visible
+            if (showPrayerRequests) {
+              // The PrayerRequestsList component will handle its own refresh
+            }
+          }}
+        />
+      )}
     </div>
   );
 };
