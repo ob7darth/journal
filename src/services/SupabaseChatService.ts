@@ -1,4 +1,4 @@
-import { supabase, type ChatMessage as DBChatMessage } from '../lib/supabase';
+import { supabase, type ChatMessage as DBChatMessage, type DBReaction } from '../lib/supabase';
 import { supabaseAuthService } from './SupabaseAuthService';
 
 export interface ChatReaction {
@@ -29,7 +29,6 @@ class SupabaseChatService {
   private userCallbacks: ((users: ChatUser[]) => void)[] = [];
   private connectionCallbacks: ((connected: boolean) => void)[] = [];
   private reactionCallbacks: ((messageId: string, reactions: Record<string, ChatReaction[]>) => void)[] = [];
-  private isConnected = false;
   private subscription: any = null;
 
   async connectToServer(): Promise<void> {
@@ -47,7 +46,6 @@ class SupabaseChatService {
         throw error;
       }
 
-      this.isConnected = true;
       this.notifyConnectionCallbacks(true);
       
       // Set up real-time subscription
@@ -87,9 +85,10 @@ class SupabaseChatService {
         },
         async (payload) => {
           // Refetch reactions for the affected message
-          if (payload.new?.message_id) {
-            const reactions = await this.getMessageReactions(payload.new.message_id);
-            this.notifyReactionCallbacks(payload.new.message_id, reactions);
+          const reaction = payload.new as DBReaction;
+          if (reaction?.message_id) {
+            const reactions = await this.getMessageReactions(reaction.message_id);
+            this.notifyReactionCallbacks(reaction.message_id, reactions);
           }
         }
       )
@@ -99,7 +98,6 @@ class SupabaseChatService {
   private useDemoMode() {
     // Simulate connection for demo
     setTimeout(() => {
-      this.isConnected = true;
       this.notifyConnectionCallbacks(true);
     }, 1000);
   }
@@ -412,7 +410,6 @@ class SupabaseChatService {
       this.subscription.unsubscribe();
       this.subscription = null;
     }
-    this.isConnected = false;
   }
 }
 

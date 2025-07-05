@@ -54,3 +54,10 @@ export interface ChatReaction {
   reaction_type: 'like' | 'heart' | 'wow' | 'pray';
   created_at: string;
 }
+export interface DBReaction {
+  id: string;
+  message_id: string;
+  user_id: string;
+  reaction_type: 'like' | 'heart' | 'wow' | 'pray';
+  created_at: string;
+}
