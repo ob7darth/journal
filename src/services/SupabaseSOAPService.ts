@@ -1,4 +1,4 @@
-import { supabase, type SOAPEntry as DBSOAPEntry } from '../lib/supabase';
+import { supabase } from '../lib/supabase';
 import { supabaseAuthService } from './SupabaseAuthService';
 import type { SOAPEntry } from '../types/SOAPEntry';
 
