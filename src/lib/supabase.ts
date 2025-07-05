@@ -37,27 +37,26 @@ export interface SOAPEntry {
   updated_at: string;
 }
 
-export interface ChatMessage {
+export interface PrayerRequest {
   id: string;
   user_id: string;
-  user_name: string;
-  message: string;
-  message_type: 'message' | 'prayer' | 'encouragement';
+  title: string;
+  description: string;
+  is_anonymous: boolean;
+  is_public: boolean;
+  is_answered: boolean;
+  answered_at?: string;
+  answer_description?: string;
+  expires_at: string;
   created_at: string;
-  reactions?: ChatReaction[];
+  updated_at: string;
 }
 
-export interface ChatReaction {
+export interface PrayerResponse {
   id: string;
-  message_id: string;
+  prayer_request_id: string;
   user_id: string;
-  reaction_type: 'like' | 'heart' | 'wow' | 'pray';
-  created_at: string;
-}
-export interface DBReaction {
-  id: string;
-  message_id: string;
-  user_id: string;
-  reaction_type: 'like' | 'heart' | 'wow' | 'pray';
+  response_type: 'praying' | 'encouragement' | 'testimony';
+  message: string;
   created_at: string;
 }

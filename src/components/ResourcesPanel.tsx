@@ -82,12 +82,12 @@ const ResourcesPanel: React.FC = () => {
       <div className="bg-gradient-to-r from-primary-600 to-primary-700 rounded-xl p-6 text-white">
         <div className="flex items-center gap-3 mb-4">
           <Users size={24} />
-          <h3 className="text-xl font-semibold">Join Our Community</h3>
+          <h3 className="text-xl font-semibold">Connect with Our Community</h3>
         </div>
         
         <p className="mb-6 opacity-90">
-          Connect with fellow believers, share your journey, and grow together in faith. 
-          Our community is here to support and encourage you every step of the way.
+          Join fellow believers in prayer, share your spiritual journey, and grow together in faith. 
+          Our community is here to support and encourage you through prayer and fellowship.
         </p>
         
         <div className="flex flex-wrap gap-3">
