@@ -49,33 +49,20 @@ class SupabaseAuthService {
 
   private async setUserFromSession(user: User) {
     try {
-      // Get or create profile
-      let { data: profile, error } = await supabase
+      // Get profile (should be created by trigger)
+      const { data: profile, error } = await supabase
         .from('profiles')
         .select('*')
         .eq('id', user.id)
         .single();
 
-      if (error && error.code === 'PGRST116') {
-        // Profile doesn't exist, create it
-        const { data: newProfile, error: insertError } = await supabase
-          .from('profiles')
-          .insert({
-            id: user.id,
-            email: user.email,
-            full_name: user.user_metadata?.full_name || user.email || 'User',
-            is_guest: false
-          })
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error('Error creating profile:', insertError);
-          return;
-        }
-        profile = newProfile;
-      } else if (error) {
+      if (error) {
         console.error('Error fetching profile:', error);
+        return;
+      }
+
+      if (!profile) {
+        console.error('No profile found for user');
         return;
       }
 
@@ -111,6 +98,11 @@ class SupabaseAuthService {
 
     if (!data.user) {
       throw new Error('Failed to create user');
+    }
+
+    // Check if email confirmation is required
+    if (!data.session && data.user && !data.user.email_confirmed_at) {
+      throw new Error('Please check your email and click the confirmation link to complete registration.');
     }
 
     // User will be set via the auth state change listener

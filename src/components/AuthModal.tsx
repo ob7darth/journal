@@ -82,7 +82,22 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
       onSuccess?.();
       handleClose();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'An error occurred');
+      let errorMessage = 'An error occurred';
+      
+      if (err instanceof Error) {
+        errorMessage = err.message;
+        
+        // Provide more user-friendly error messages
+        if (errorMessage.includes('Invalid login credentials')) {
+          errorMessage = 'Invalid email or password. Please check your credentials and try again.';
+        } else if (errorMessage.includes('Email not confirmed')) {
+          errorMessage = 'Please check your email and click the confirmation link before signing in.';
+        } else if (errorMessage.includes('User already registered')) {
+          errorMessage = 'An account with this email already exists. Please sign in instead.';
+        }
+      }
+      
+      setError(errorMessage);
     } finally {
       setLoading(false);
     }
