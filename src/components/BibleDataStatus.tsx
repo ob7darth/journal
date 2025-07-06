@@ -66,16 +66,20 @@ const BibleDataStatus: React.FC = () => {
             Using Sample Bible Data
           </div>
           <div className="text-xs text-yellow-700 mb-3">
-            For the full Bible experience, you can add the complete NASB text file to your project.
+            For the full Bible experience, you can add the complete Bible text file to your project.
             Currently showing {stats.totalVerses} sample verses.
+            <strong> All passages can still be read via Bible Gateway links.</strong>
           </div>
           <details className="text-xs text-yellow-700">
             <summary className="cursor-pointer font-medium mb-2">Setup Instructions</summary>
             <div className="space-y-2 pl-4">
-              <p>1. Download the NASB text file from archive.org</p>
+              <p>1. Download a Bible text file (NASB format recommended)</p>
               <p>2. Rename it to "bible-data.txt"</p>
               <p>3. Place it in the "public" folder</p>
               <p>4. Restart the development server</p>
+              <p className="text-blue-600">
+                <strong>Alternative:</strong> All passages link to Bible Gateway for full text access.
+              </p>
               <p className="text-yellow-600 font-medium">
                 Note: Ensure you have proper rights to use copyrighted Bible text.
               </p>

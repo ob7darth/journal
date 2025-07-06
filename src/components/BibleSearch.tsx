@@ -17,7 +17,12 @@ const BibleSearch: React.FC<BibleSearchProps> = ({ onVerseSelect }) => {
     setLoading(true);
     try {
       const searchResults = await bibleService.searchVerses(query.trim());
-      setResults(searchResults);
+      if (searchResults.length > 0) {
+        setResults(searchResults);
+      } else {
+        // If no results found, provide Bible Gateway search option
+        setResults([]);
+      }
     } catch (error) {
       console.error('Search error:', error);
       setResults([]);
@@ -83,7 +88,16 @@ const BibleSearch: React.FC<BibleSearchProps> = ({ onVerseSelect }) => {
 
       {query && results.length === 0 && !loading && (
         <div className="text-center text-gray-500 py-4">
-          No verses found matching "{query}"
+          <p className="mb-3">No verses found matching "{query}" in our local database.</p>
+          <a
+            href={bibleService.getBibleGatewaySearchUrl(query)}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors text-sm"
+          >
+            Search on Bible Gateway
+            <ExternalLink size={14} />
+          </a>
         </div>
       )}
     </div>

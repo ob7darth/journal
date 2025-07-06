@@ -35,7 +35,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
   };
 
   const formattedPassage = getDisplayText();
-  const bibleGatewayUrl = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(formattedPassage)}&version=${version}`;
+  const bibleGatewayUrl = bibleService.getBibleGatewayUrl(passage.book, passage.chapter, passage.verses, version);
 
   useEffect(() => {
     // Check if Bible data is loaded
@@ -57,7 +57,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
         if (result) {
           setScripture(result);
         } else {
-          setError('Scripture not found. The Bible data may still be loading, or this passage may not be available in our database.');
+          setError('Scripture not found in our database. Please use the Bible Gateway link below to read this passage.');
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unable to load scripture. Please try again later.';
@@ -127,9 +127,20 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
               {!dataLoaded && (
                 <div className="text-sm text-gray-600">
                   <p className="mb-2">The Bible database is still loading. This may take a moment.</p>
-                  <p>You can still read this passage on Bible Gateway using the link below.</p>
+                  <p>You can read this passage on Bible Gateway using the link below.</p>
                 </div>
               )}
+              <div className="mt-4">
+                <a 
+                  href={bibleGatewayUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center gap-2 bg-primary-600 text-white px-4 py-2 rounded-lg hover:bg-primary-700 transition-colors"
+                >
+                  Read on Bible Gateway
+                  <ExternalLink size={16} />
+                </a>
+              </div>
             </div>
           ) : scripture && scripture.text.length > 0 ? (
             <div className="p-6">
@@ -162,8 +173,8 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
             <div className="p-6 text-center">
               <p className="text-gray-600 mb-4">
                 {!dataLoaded 
-                  ? 'Bible data is still loading. You can read this passage on Bible Gateway while we prepare the local database.'
-                  : 'Click the link below to read this passage on Bible Gateway.'
+                  ? 'Bible data is still loading. You can read this passage on Bible Gateway.'
+                  : 'This passage is not available in our local database. You can read it on Bible Gateway.'
                 }
               </p>
               <a 
