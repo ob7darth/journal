@@ -36,6 +36,12 @@ class SupabaseAuthService {
   }
 
   private async initialize() {
+    if (!canUseSupabase() || !supabase) {
+      this.isInitialized = true;
+      this.notifyAuthCallbacks();
+      return;
+    }
+
     // Get initial session
     const { data: { session } } = await supabase.auth.getSession();
     if (session?.user) {
@@ -53,10 +59,6 @@ class SupabaseAuthService {
     });
 
     this.isInitialized = true;
-    if (!canUseSupabase() || !supabase) {
-      return;
-    }
-
     this.notifyAuthCallbacks();
   }
 
