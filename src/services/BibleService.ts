@@ -12,23 +12,23 @@ export interface BiblePassage {
   text: BibleVerse[];
 }
 
-import { nasbBibleService } from './NASBBibleService';
+import { csvBibleService } from './CSVBibleService';
 import { bibleGatewayService } from './BibleGatewayService';
 
 class BibleService {
-  // Use the NASB Bible service as the primary data source
-  private nasbService = nasbBibleService;
+  // Use the CSV Bible service as the primary data source
+  private csvService = csvBibleService;
   private gatewayService = bibleGatewayService;
 
   async getPassage(book: string, chapter: number, verses: string): Promise<BiblePassage | null> {
     try {
-      // Try to get from NASB service first
-      const passage = await this.nasbService.getPassage(book, chapter, verses);
+      // Try to get from CSV service first
+      const passage = await this.csvService.getPassage(book, chapter, verses);
       if (passage) {
         return passage;
       }
     } catch (error) {
-      console.error('Error fetching from NASB service:', error);
+      console.error('Error fetching from CSV service:', error);
     }
 
     // Fallback to Bible Gateway service
@@ -43,13 +43,13 @@ class BibleService {
 
   async searchVerses(query: string, limit: number = 20): Promise<BibleVerse[]> {
     try {
-      // Try to search in NASB service first
-      const results = await this.nasbService.searchVerses(query, limit);
+      // Try to search in CSV service first
+      const results = await this.csvService.searchVerses(query, limit);
       if (results.length > 0) {
         return results;
       }
     } catch (error) {
-      console.error('Error searching in NASB service:', error);
+      console.error('Error searching in CSV service:', error);
     }
 
     // Fallback to Bible Gateway service
@@ -64,9 +64,9 @@ class BibleService {
 
   async getStats(): Promise<{totalVerses: number, totalBooks: number, totalChapters: number}> {
     try {
-      return await this.nasbService.getStats();
+      return await this.csvService.getStats();
     } catch (error) {
-      console.error('Error getting stats from NASB service:', error);
+      console.error('Error getting stats from CSV service:', error);
       return {
         totalVerses: 0,
         totalBooks: 0,
@@ -77,7 +77,7 @@ class BibleService {
 
   // Check if Bible data is loaded
   isLoaded(): boolean {
-    return this.nasbService.isLoaded();
+    return this.csvService.isLoaded();
   }
 
   // Get Bible Gateway URL for external access
