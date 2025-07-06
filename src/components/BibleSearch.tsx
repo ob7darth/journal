@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Search, BookOpen } from 'lucide-react';
+import { Search, BookOpen, ExternalLink } from 'lucide-react';
 import { bibleService, BibleVerse } from '../services/BibleService';
 
 interface BibleSearchProps {
