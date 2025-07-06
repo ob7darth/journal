@@ -22,15 +22,18 @@ class SupabaseAuthService {
   private authCallbacks: ((state: AuthState) => void)[] = [];
   private isInitialized = false;
 
+  constructor() {
     if (canUseSupabase()) {
       this.initializeAuth();
     }
     this.initialize();
   }
 
+  private initializeAuth() {
     if (!canUseSupabase() || !supabase) {
       return;
     }
+  }
 
   private async initialize() {
     // Get initial session
@@ -350,6 +353,11 @@ class SupabaseAuthService {
   private notifyAuthCallbacks() {
     const state = this.getAuthState();
     this.authCallbacks.forEach(callback => callback(state));
+  }
+
+  private setCurrentUser(user: AuthUser | null) {
+    this.currentUser = user;
+    this.notifyAuthCallbacks();
   }
 
   // Load guest user from localStorage on app start
