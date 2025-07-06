@@ -9,7 +9,7 @@ interface ParsedVerse {
 
 class NASBBibleService {
   private verses: Map<string, ParsedVerse[]> = new Map();
-  private isLoaded = false;
+  private _dataLoaded = false;
   private loadingPromise: Promise<void> | null = null;
 
   constructor() {
@@ -52,14 +52,14 @@ class NASBBibleService {
       }
 
       this.parseBibleText(bibleText);
-      this.isLoaded = true;
+      this._dataLoaded = true;
       console.log('Bible data loaded successfully');
       
     } catch (error) {
       console.error('Error loading Bible data:', error);
       // Load fallback data on error
       this.parseBibleText(this.getFallbackBibleData());
-      this.isLoaded = true;
+      this._dataLoaded = true;
     }
   }
 
@@ -306,7 +306,7 @@ Philippians 4:19 And my God will supply all your needs according to His riches i
   }
 
   isLoaded(): boolean {
-    return this.isLoaded;
+    return this._dataLoaded;
   }
 }
 
