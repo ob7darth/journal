@@ -1,4 +1,4 @@
-import { supabase } from '../lib/supabase';
+import { supabase, canUseSupabase } from '../lib/supabase';
 import type { User } from '@supabase/supabase-js';
 
 export interface AuthUser {
@@ -22,9 +22,15 @@ class SupabaseAuthService {
   private authCallbacks: ((state: AuthState) => void)[] = [];
   private isInitialized = false;
 
-  constructor() {
+    if (canUseSupabase()) {
+      this.initializeAuth();
+    }
     this.initialize();
   }
+
+    if (!canUseSupabase() || !supabase) {
+      return;
+    }
 
   private async initialize() {
     // Get initial session
@@ -44,6 +50,10 @@ class SupabaseAuthService {
     });
 
     this.isInitialized = true;
+    if (!canUseSupabase() || !supabase) {
+      return;
+    }
+
     this.notifyAuthCallbacks();
   }
 
@@ -82,6 +92,10 @@ class SupabaseAuthService {
   }
 
   async signUp(email: string, password: string, fullName: string): Promise<AuthUser> {
+    if (!canUseSupabase() || !supabase) {
+      throw new Error('Supabase is not configured. Please check your environment variables.');
+    }
+
     const { data, error } = await supabase.auth.signUp({
       email,
       password,
@@ -124,6 +138,10 @@ class SupabaseAuthService {
   }
 
   async signIn(email: string, password: string): Promise<AuthUser> {
+    if (!canUseSupabase() || !supabase) {
+      throw new Error('Supabase is not configured. Please check your environment variables.');
+    }
+
     const { data, error } = await supabase.auth.signInWithPassword({
       email,
       password
@@ -260,6 +278,11 @@ class SupabaseAuthService {
   }
 
   async signOut(): Promise<void> {
+    if (!canUseSupabase() || !supabase) {
+      this.setCurrentUser(null);
+      return;
+    }
+
     if (this.currentUser?.isGuest) {
       // For guest users, just clear local data
       this.currentUser = null;
