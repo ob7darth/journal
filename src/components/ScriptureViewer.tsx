@@ -16,6 +16,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
   const [expanded, setExpanded] = useState<boolean>(false);
+  const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
   // Use the displayText if available, otherwise format as chapter only
   const getDisplayText = (): string => {
@@ -37,6 +38,9 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
   const bibleGatewayUrl = `https://www.biblegateway.com/passage/?search=${encodeURIComponent(formattedPassage)}&version=${version}`;
 
   useEffect(() => {
+    // Check if Bible data is loaded
+    setDataLoaded(bibleService.isLoaded());
+    
     const fetchScripture = async () => {
       if (!expanded) return;
       
@@ -44,11 +48,16 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
       setError(null);
       
       try {
+        // Wait a bit for data to load if not ready
+        if (!bibleService.isLoaded()) {
+          await new Promise(resolve => setTimeout(resolve, 1000));
+        }
+        
         const result = await bibleService.getPassage(passage.book, passage.chapter, passage.verses);
         if (result) {
           setScripture(result);
         } else {
-          setError('Scripture not found in local database.');
+          setError('Scripture not found. The Bible data may still be loading, or this passage may not be available in our database.');
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unable to load scripture. Please try again later.';
@@ -76,7 +85,10 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
           <BookOpen size={20} className="text-primary-600" />
           <div>
             <span className="font-semibold text-gray-900">{formattedPassage}</span>
-            <span className="text-sm text-gray-500 ml-2">({version})</span>
+            <span className="text-sm text-gray-500 ml-2">
+              ({version})
+              {!dataLoaded && <span className="text-yellow-600 ml-1">• Loading Bible data...</span>}
+            </span>
           </div>
         </div>
         <div className="flex items-center gap-2">
@@ -104,11 +116,21 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
             <div className="p-6 flex justify-center">
               <div className="flex items-center gap-2 text-gray-600">
                 <Loader size={20} className="animate-spin" />
-                <span>Loading scripture...</span>
+                <span>
+                  {!dataLoaded ? 'Loading Bible data...' : 'Loading scripture...'}
+                </span>
               </div>
             </div>
           ) : error ? (
-            <div className="p-6 text-red-600 text-center">{error}</div>
+            <div className="p-6 text-center">
+              <div className="text-red-600 mb-4">{error}</div>
+              {!dataLoaded && (
+                <div className="text-sm text-gray-600">
+                  <p className="mb-2">The Bible database is still loading. This may take a moment.</p>
+                  <p>You can still read this passage on Bible Gateway using the link below.</p>
+                </div>
+              )}
+            </div>
           ) : scripture && scripture.text.length > 0 ? (
             <div className="p-6">
               <div className="space-y-3">
@@ -139,7 +161,10 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
           ) : (
             <div className="p-6 text-center">
               <p className="text-gray-600 mb-4">
-                Click the link below to read this passage on Bible Gateway.
+                {!dataLoaded 
+                  ? 'Bible data is still loading. You can read this passage on Bible Gateway while we prepare the local database.'
+                  : 'Click the link below to read this passage on Bible Gateway.'
+                }
               </p>
               <a 
                 href={bibleGatewayUrl}

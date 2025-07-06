@@ -2,6 +2,7 @@ import React from 'react';
 import { PenTool, Share2, CheckCircle } from 'lucide-react';
 import { DailyReading } from '../types/ReadingPlan';
 import ScriptureViewer from './ScriptureViewer';
+import BibleDataStatus from './BibleDataStatus';
 
 interface ReadingViewProps {
   reading: DailyReading;
@@ -18,6 +19,9 @@ const ReadingView: React.FC<ReadingViewProps> = ({
 }) => {
   return (
     <div className="bg-white rounded-xl shadow-sm p-6">
+      {/* Bible Data Status */}
+      <BibleDataStatus />
+      
       {/* Theme Header */}
       <div className="mb-6">
         <h2 className="text-2xl font-bold text-gray-900 mb-2">{reading.theme}</h2>
