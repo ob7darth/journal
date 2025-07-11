@@ -23,8 +23,7 @@ function App() {
   
   // Auth state
   const [user, setUser] = useState<AuthUser | null>(null);
-  const [showAuthModal, setShowAuthModal] = useState(false);
-  const [authMode, setAuthMode] = useState<'signin' | 'signup' | 'guest'>('guest');
+  const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [showProfile, setShowProfile] = useState(false);
   
   // Calculate today's day of year
@@ -56,13 +55,6 @@ function App() {
     if (currentUser) {
       setUser(currentUser);
       loadUserEntries();
-    } else {
-      // Show auth modal after splash screen
-      setTimeout(() => {
-        if (!authService.isAuthenticated()) {
-          setShowAuthModal(true);
-        }
-      }, 3000);
     }
   }, []);
 
@@ -102,7 +94,6 @@ function App() {
   };
 
   const handleAuthSuccess = () => {
-    setShowAuthModal(false);
     // Reload entries for the new user
     const currentUser = authService.getCurrentUser();
     if (currentUser) {
@@ -110,9 +101,8 @@ function App() {
     }
   };
 
-  const openAuthModal = (mode: 'signin' | 'signup' | 'guest') => {
+  const openAuthModal = (mode: 'signin' | 'signup') => {
     setAuthMode(mode);
-    setShowAuthModal(true);
   };
 
   const currentReading = readingPlan.days.find(d => d.day === currentDay);
@@ -138,8 +128,8 @@ function App() {
     return <SplashScreen onComplete={() => setShowSplash(false)} />;
   }
 
-  // Show auth modal if not authenticated
-  if (!user && !showAuthModal) {
+  // Show welcome page if not authenticated
+  if (!user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-warm-50 to-warm-100 flex items-center justify-center">
         <div className="text-center">
@@ -151,20 +141,14 @@ function App() {
           
           <div className="space-y-3 max-w-sm mx-auto">
             <button
-              onClick={() => openAuthModal('guest')}
-              className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors"
-            >
-              Continue as Guest
-            </button>
-            <button
               onClick={() => openAuthModal('signin')}
-              className="w-full bg-white text-gray-700 py-3 px-4 rounded-lg border border-gray-300 hover:bg-gray-50 transition-colors"
+              className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors"
             >
               Sign In
             </button>
             <button
               onClick={() => openAuthModal('signup')}
-              className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors"
+              className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors"
             >
               Create Account
             </button>
@@ -314,14 +298,12 @@ function App() {
       <InstallPrompt />
 
       {/* Auth Modal */}
-      {showAuthModal && (
-        <AuthModal
-          isOpen={showAuthModal}
-          onClose={() => setShowAuthModal(false)}
-          mode={authMode}
-          onSuccess={handleAuthSuccess}
-        />
-      )}
+      <AuthModal
+        isOpen={!user}
+        onClose={() => {}} // No close action needed since it's always open when not authenticated
+        mode={authMode}
+        onSuccess={handleAuthSuccess}
+      />
 
       {/* User Profile Modal */}
       {showProfile && user && (
