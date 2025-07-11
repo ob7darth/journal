@@ -220,104 +220,66 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
               </div>
             )}
 
-            {/* Primary Login Section */}
+            {/* Email field */}
             {(mode === 'signin' || mode === 'signup' || mode === 'upgrade' || mode === 'forgot-password') && (
-              <div className="space-y-4">
-                {/* Email field */}
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    Email Address
-                  </label>
-                  <div className="relative">
-                    <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                    <input
-                      type="email"
-                      value={formData.email}
-                      onChange={(e) => handleInputChange('email', e.target.value)}
-                      placeholder="Enter your email"
-                      className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors hover:border-gray-400"
-                      required
-                    />
-                  </div>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Email Address
+                </label>
+                <div className="relative">
+                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    type="email"
+                    value={formData.email}
+                    onChange={(e) => handleInputChange('email', e.target.value)}
+                    placeholder="Enter your email"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors hover:border-gray-400"
+                    required
+                  />
                 </div>
+              </div>
+            )}
 
-                {/* Password field */}
-                {mode !== 'forgot-password' && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                      <input
-                        type="password"
-                        value={formData.password}
-                        onChange={(e) => handleInputChange('password', e.target.value)}
-                        placeholder="Enter your password"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors hover:border-gray-400"
-                        required
-                      />
-                    </div>
-                    {(mode === 'signup' || mode === 'upgrade') && (
-                      <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
-                    )}
-                  </div>
-                )}
-
-                {/* Confirm Password field */}
+            {/* Password field */}
+            {(mode === 'signin' || mode === 'signup' || mode === 'upgrade') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    type="password"
+                    value={formData.password}
+                    onChange={(e) => handleInputChange('password', e.target.value)}
+                    placeholder="Enter your password"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors hover:border-gray-400"
+                    required
+                  />
+                </div>
                 {(mode === 'signup' || mode === 'upgrade') && (
-                  <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-2">
-                      Confirm Password
-                    </label>
-                    <div className="relative">
-                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
-                      <input
-                        type="password"
-                        value={formData.confirmPassword}
-                        onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
-                        placeholder="Confirm your password"
-                        className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors hover:border-gray-400"
-                        required
-                      />
-                    </div>
-                  </div>
+                  <p className="text-xs text-gray-500 mt-1">Must be at least 6 characters</p>
                 )}
+              </div>
+            )}
 
-                {/* Primary Action Button */}
-                <button
-                  type="submit"
-                  disabled={loading}
-                  className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-medium"
-                >
-                  {loading ? (
-                    <>
-                      <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      Processing...
-                    </>
-                  ) : (
-                    <>
-                      {getIcon()}
-                      {mode === 'signin' && 'Log In'}
-                      {mode === 'signup' && 'Create Account'}
-                      {mode === 'upgrade' && 'Upgrade Account'}
-                      {mode === 'forgot-password' && 'Send Reset Email'}
-                    </>
-                  )}
-                </button>
-
-                {/* Forgot Password Link - Only show on signin */}
-                {mode === 'signin' && (
-                  <div className="text-right">
-                    <button
-                      type="button"
-                      onClick={() => setMode('forgot-password')}
-                      className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
-                    >
-                      Forgot Password?
-                    </button>
-                  </div>
-                )}
+            {/* Confirm Password field */}
+            {(mode === 'signup' || mode === 'upgrade') && (
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  Confirm Password
+                </label>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400" size={18} />
+                  <input
+                    type="password"
+                    value={formData.confirmPassword}
+                    onChange={(e) => handleInputChange('confirmPassword', e.target.value)}
+                    placeholder="Confirm your password"
+                    className="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-primary-500 transition-colors hover:border-gray-400"
+                    required
+                  />
+                </div>
               </div>
             )}
 
@@ -335,12 +297,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
               </div>
             )}
 
-            {/* Guest Mode Submit Button */}
-            {mode === 'guest' && (
+            {/* Primary Action Buttons */}
+            {mode === 'signin' && (
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-medium"
+                className="w-full bg-primary-600 text-white py-4 px-6 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-semibold text-lg"
               >
                 {loading ? (
                   <>
@@ -350,100 +312,162 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
                 ) : (
                   <>
                     {getIcon()}
-                    Continue as Guest
+                    Sign In
                   </>
                 )}
               </button>
             )}
-          </form>
-
-          {/* Visual Separator and Mode Switching */}
-          <div className="mt-5">
-            {/* Visual Separator */}
-            {(mode === 'signin' || mode === 'signup') && (
-              <div className="flex justify-center mb-5">
-                <div className="w-[90%] h-px bg-gray-200"></div>
-              </div>
-            )}
-
-            {/* New User Section / Mode Switching */}
-            {mode === 'guest' && (
-              <div className="space-y-4">
-                <div className="text-center">
-                  <p className="text-sm text-gray-600 mb-4">Already have an account?</p>
-                  <button
-                    onClick={() => setMode('signin')}
-                    className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                  >
-                    Sign In Instead
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {mode === 'signin' && (
-              <div className="space-y-4">
-                {/* New User Section */}
-                <div className="text-center">
-                  <p className="text-gray-600 mb-4" style={{ fontSize: '15px' }}>New to our platform?</p>
-                  <button
-                    onClick={() => setMode('signup')}
-                    className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                  >
-                    Create Account
-                  </button>
-                </div>
-                
-                {/* Guest Access */}
-                <div className="text-center" style={{ marginTop: '24px' }}>
-                  <button
-                    onClick={() => setMode('guest')}
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
-                    style={{ fontSize: '12px' }}
-                  >
-                    Continue as Guest
-                  </button>
-                </div>
-              </div>
-            )}
 
             {mode === 'signup' && (
-              <div className="space-y-4">
-                <div className="text-center">
-                  <p className="text-gray-600 mb-4" style={{ fontSize: '15px' }}>Already have an account?</p>
-                  <button
-                    onClick={() => setMode('signin')}
-                    className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium"
-                  >
-                    Log In
-                  </button>
-                </div>
-                
-                {/* Guest Access */}
-                <div className="text-center" style={{ marginTop: '24px' }}>
-                  <button
-                    onClick={() => setMode('guest')}
-                    className="text-gray-500 hover:text-gray-700 transition-colors"
-                    style={{ fontSize: '12px' }}
-                  >
-                    Continue as Guest
-                  </button>
-                </div>
-              </div>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary-600 text-white py-4 px-6 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-semibold text-lg"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    {getIcon()}
+                    Create Account
+                  </>
+                )}
+              </button>
+            )}
+
+            {mode === 'upgrade' && (
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary-600 text-white py-4 px-6 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-semibold text-lg"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Upgrading...
+                  </>
+                ) : (
+                  <>
+                    {getIcon()}
+                    Upgrade Account
+                  </>
+                )}
+              </button>
             )}
 
             {mode === 'forgot-password' && (
-              <div className="text-center">
-                <p className="text-gray-600 mb-4" style={{ fontSize: '15px' }}>Remember your password?</p>
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full bg-primary-600 text-white py-4 px-6 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-semibold text-lg"
+              >
+                {loading ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                    Sending...
+                  </>
+                ) : (
+                  <>
+                    {getIcon()}
+                    Send Reset Email
+                  </>
+                )}
+              </button>
+            )}
+
+            {/* Forgot Password Link - Only show on signin */}
+            {mode === 'signin' && (
+              <div className="text-right">
                 <button
-                  onClick={() => setMode('signin')}
-                  className="w-full bg-gray-100 text-gray-700 py-3 px-4 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+                  type="button"
+                  onClick={() => setMode('forgot-password')}
+                  className="text-sm text-gray-600 hover:text-gray-800 transition-colors"
                 >
-                  Back to Log In
+                  Forgot Password?
                 </button>
               </div>
             )}
-          </div>
+          </form>
+
+          {/* Create Account Section - Prominent but Secondary */}
+          {mode === 'signin' && (
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="text-center">
+                <p className="text-gray-700 mb-4 font-medium">New user? Create an account</p>
+                <button
+                  onClick={() => setMode('signup')}
+                  className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors font-semibold"
+                >
+                  Sign Up
+                </button>
+              </div>
+            </div>
+          )}
+
+          {mode === 'signup' && (
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="text-center">
+                <p className="text-gray-700 mb-4 font-medium">Already have an account?</p>
+                <button
+                  onClick={() => setMode('signin')}
+                  className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+                >
+                  Sign In
+                </button>
+              </div>
+            </div>
+          )}
+
+          {mode === 'forgot-password' && (
+            <div className="mt-8 pt-6 border-t border-gray-200">
+              <div className="text-center">
+                <p className="text-gray-700 mb-4 font-medium">Remember your password?</p>
+                <button
+                  onClick={() => setMode('signin')}
+                  className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors font-semibold"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Guest Access - Minimal Emphasis at Bottom */}
+          {(mode === 'signin' || mode === 'signup') && (
+            <div className="mt-8 pt-4 text-center">
+              <p className="text-xs text-gray-500 mb-2">Or continue without an account</p>
+              <button
+                onClick={() => setMode('guest')}
+                className="text-xs text-gray-400 hover:text-gray-600 transition-colors underline"
+              >
+                Continue as Guest
+              </button>
+            </div>
+          )}
+
+          {/* Guest Mode Form */}
+          {mode === 'guest' && (
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full bg-primary-600 text-white py-4 px-6 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-semibold text-lg"
+            >
+              {loading ? (
+                <>
+                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  Processing...
+                </>
+              ) : (
+                <>
+                  {getIcon()}
+                  Continue as Guest
+                </>
+              )}
+            </button>
+          )}
 
           {/* Benefits */}
           {mode !== 'upgrade' && mode !== 'forgot-password' && (
