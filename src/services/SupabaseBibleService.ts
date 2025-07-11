@@ -151,22 +151,16 @@ class SupabaseBibleService {
       
       console.log(`✅ Using Bible text column at index ${asvIndex} (${headers[asvIndex]})`);
       
-      // Assume we also have book, chapter, verse columns
-      const bookIndex = headers.findIndex(h => 
-        h.toLowerCase().includes('book') || h.toLowerCase().includes('name')
-      );
-      const chapterIndex = headers.findIndex(h => 
-        h.toLowerCase().includes('chapter')
-      );
-      const verseIndex = headers.findIndex(h => 
-        h.toLowerCase().includes('verse') && !h.toLowerCase().includes('text')
-      );
+      // Assume first column (index 0) contains the Bible reference (e.g., "Genesis 1:1")
+      const referenceIndex = 0;
       
-      if (bookIndex === -1 || chapterIndex === -1 || verseIndex === -1) {
-        console.error('❌ Required columns (book, chapter, verse) not found');
+      if (referenceIndex >= headers.length) {
+        console.error('❌ Reference column not found');
         console.log('📋 Available columns:', headers);
         return null;
       }
+      
+      console.log(`✅ Using reference column at index ${referenceIndex} (${headers[referenceIndex]})`);
       
       // Parse data rows
       const books: any = {};
@@ -178,14 +172,20 @@ class SupabaseBibleService {
           continue;
         }
         
-        const bookName = fields[bookIndex]?.trim();
-        const chapterNum = parseInt(fields[chapterIndex]?.trim());
-        const verseNum = parseInt(fields[verseIndex]?.trim());
+        const reference = fields[referenceIndex]?.trim();
         const asvText = fields[asvIndex]?.trim();
         
-        if (!bookName || isNaN(chapterNum) || isNaN(verseNum) || !asvText) {
+        if (!reference || !asvText) {
           continue;
         }
+        
+        // Parse the reference string (e.g., "Genesis 1:1")
+        const parsedRef = this.parseReference(reference);
+        if (!parsedRef) {
+          continue;
+        }
+        
+        const { book: bookName, chapter: chapterNum, verse: verseNum } = parsedRef;
         
         // Initialize book structure
         if (!books[bookName]) {
@@ -211,6 +211,31 @@ class SupabaseBibleService {
       console.error('❌ Error parsing Excel file:', error);
       return null;
     }
+  }
+
+  private parseReference(reference: string): { book: string; chapter: number; verse: number } | null {
+    // Parse references like "Genesis 1:1", "1 Kings 2:3", "Psalm 23:1", etc.
+    const match = reference.match(/^(.+?)\s+(\d+):(\d+)$/);
+    
+    if (!match) {
+      console.warn(`❌ Could not parse reference: ${reference}`);
+      return null;
+    }
+    
+    const [, book, chapterStr, verseStr] = match;
+    const chapter = parseInt(chapterStr);
+    const verse = parseInt(verseStr);
+    
+    if (isNaN(chapter) || isNaN(verse)) {
+      console.warn(`❌ Invalid chapter/verse numbers in: ${reference}`);
+      return null;
+    }
+    
+    return {
+      book: book.trim(),
+      chapter,
+      verse
+    };
   }
 
   private parseCSVLine(line: string): string[] {
