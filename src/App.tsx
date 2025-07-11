@@ -23,6 +23,7 @@ function App() {
   
   // Auth state
   const [user, setUser] = useState<AuthUser | null>(null);
+  const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
   const [showProfile, setShowProfile] = useState(false);
   
@@ -99,10 +100,17 @@ function App() {
     if (currentUser) {
       loadUserEntries();
     }
+    setShowAuthModal(false);
   };
 
-  const openAuthModal = (mode: 'signin' | 'signup') => {
+  const handleSignIn = () => {
+    setAuthMode('signin');
+    setShowAuthModal(true);
+  };
+
+  const handleSignUp = () => {
     setAuthMode(mode);
+    setShowAuthModal(true);
   };
 
   const currentReading = readingPlan.days.find(d => d.day === currentDay);
@@ -141,13 +149,13 @@ function App() {
           
           <div className="space-y-3 max-w-sm mx-auto">
             <button
-              onClick={() => openAuthModal('signin')}
+              onClick={handleSignIn}
               className="w-full bg-primary-600 text-white py-3 px-4 rounded-lg hover:bg-primary-700 transition-colors"
             >
               Sign In
             </button>
             <button
-              onClick={() => openAuthModal('signup')}
+              onClick={handleSignUp}
               className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors"
             >
               Create Account
@@ -299,8 +307,8 @@ function App() {
 
       {/* Auth Modal */}
       <AuthModal
-        isOpen={!user}
-        onClose={() => {}} // No close action needed since it's always open when not authenticated
+        isOpen={showAuthModal}
+        onClose={() => setShowAuthModal(false)}
         mode={authMode}
         onSuccess={handleAuthSuccess}
       />
