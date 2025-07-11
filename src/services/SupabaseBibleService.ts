@@ -63,22 +63,53 @@ class SupabaseBibleService {
         .download(this.fileName);
 
       if (error) {
-        console.warn('Could not download Bible JSON from Supabase storage:', error.message);
-        // Don't throw error, just log it and continue with fallback
-        console.warn(`📁 Storage bucket '${this.bucketName}' or file '${this.fileName}' not found. Please create the bucket and upload your JSON file.`);
+        console.error('❌ Could not download Bible JSON from Supabase storage:', error.message);
+        console.error(`📁 Storage bucket '${this.bucketName}' or file '${this.fileName}' not found.`);
+        console.error('🔗 Expected URL:', `${supabase.supabaseUrl}/storage/v1/object/public/${this.bucketName}/${this.fileName}`);
         this._dataLoaded = true;
         return;
       }
 
       if (!data) {
-        throw new Error('No data received from Supabase storage');
+        console.error('❌ No data received from Supabase storage');
+        this._dataLoaded = true;
+        return;
       }
 
       // Convert Blob to text
       const jsonText = await data.text();
+      console.log('📄 JSON text length:', jsonText.length);
+      console.log('📄 JSON preview:', jsonText.substring(0, 200) + '...');
       
       // Parse JSON
-      this.bibleData = JSON.parse(jsonText);
+      try {
+        this.bibleData = JSON.parse(jsonText);
+        console.log('✅ JSON parsed successfully');
+        
+        // Validate the structure
+        if (!this.bibleData || typeof this.bibleData !== 'object') {
+          console.error('❌ Invalid JSON structure: not an object');
+          this.bibleData = null;
+          this._dataLoaded = true;
+          return;
+        }
+        
+        if (!this.bibleData.books || typeof this.bibleData.books !== 'object') {
+          console.error('❌ Invalid JSON structure: missing or invalid "books" property');
+          console.log('📋 Available top-level properties:', Object.keys(this.bibleData));
+          this.bibleData = null;
+          this._dataLoaded = true;
+          return;
+        }
+        
+      } catch (parseError) {
+        console.error('❌ Failed to parse JSON:', parseError);
+        console.log('📄 Raw JSON text:', jsonText.substring(0, 500));
+        this.bibleData = null;
+        this._dataLoaded = true;
+        return;
+      }
+      
       this._dataLoaded = true;
       
       const bookCount = Object.keys(this.bibleData?.books || {}).length;
@@ -86,15 +117,15 @@ class SupabaseBibleService {
       console.log(`📚 Available books (${bookCount}):`, Object.keys(this.bibleData?.books || {}).slice(0, 10).join(', ') + (bookCount > 10 ? '...' : ''));
       
     } catch (error) {
-      console.warn('Could not load Bible data from Supabase storage:', error instanceof Error ? error.message : 'Unknown error');
+      console.error('❌ Could not load Bible data from Supabase storage:', error instanceof Error ? error.message : 'Unknown error');
       this._dataLoaded = true; // Mark as loaded even on error to prevent infinite retries
       
       // You might want to show a user-friendly error message here
       if (error instanceof Error) {
         if (error.message.includes('not found')) {
-          console.warn(`📄 Bible JSON file not found at ${this.bucketName}/${this.fileName}. Please upload your JSON file to this location.`);
+          console.error(`📄 Bible JSON file not found at ${this.bucketName}/${this.fileName}. Please upload your JSON file to this location.`);
         } else if (error.message.includes('permission')) {
-          console.warn('🔒 Permission denied accessing Bible JSON file. Check your RLS policies.');
+          console.error('🔒 Permission denied accessing Bible JSON file. Check your RLS policies.');
         }
       }
     }
@@ -104,7 +135,12 @@ class SupabaseBibleService {
     await this.loadBibleData();
 
     if (!this.bibleData) {
-      console.warn('Bible JSON data not available');
+      console.warn('❌ Bible JSON data not available - data failed to load or is invalid');
+      return null;
+    }
+
+    if (!this.bibleData.books) {
+      console.error('❌ Bible JSON data has no books property');
       return null;
     }
 
@@ -123,10 +159,20 @@ class SupabaseBibleService {
       return null;
     }
 
+    if (!bookData.chapters) {
+      console.error(`❌ Book ${normalizedBook} has no chapters property`);
+      return null;
+    }
+
     const chapterData = bookData.chapters[chapter.toString()];
     if (!chapterData) {
       console.warn(`❌ Chapter not found: ${book} ${chapter}`);
       console.log('📑 Available chapters for', normalizedBook, ':', Object.keys(bookData.chapters));
+      return null;
+    }
+
+    if (!chapterData.verses) {
+      console.error(`❌ Chapter ${chapter} has no verses property`);
       return null;
     }
 
