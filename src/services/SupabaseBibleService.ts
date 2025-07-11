@@ -94,13 +94,27 @@ class SupabaseBibleService {
           return;
         }
         
-        if (!this.bibleData.books || typeof this.bibleData.books !== 'object') {
-          console.error('❌ Invalid JSON structure: missing or invalid "books" property');
+        // Check for either "books" or "verses" property (handle different JSON formats)
+        let booksData = null;
+        if (this.bibleData.books && typeof this.bibleData.books === 'object') {
+          booksData = this.bibleData.books;
+          console.log('✅ Found "books" property in JSON');
+        } else if (this.bibleData.verses && typeof this.bibleData.verses === 'object') {
+          booksData = this.bibleData.verses;
+          console.log('✅ Found "verses" property in JSON, using as books data');
+        } else {
+          console.error('❌ Invalid JSON structure: missing "books" or "verses" property');
           console.log('📋 Available top-level properties:', Object.keys(this.bibleData));
           this.bibleData = null;
           this._dataLoaded = true;
           return;
         }
+        
+        // Normalize the structure by ensuring we have a "books" property
+        this.bibleData = {
+          ...this.bibleData,
+          books: booksData
+        };
         
       } catch (parseError) {
         console.error('❌ Failed to parse JSON:', parseError);
