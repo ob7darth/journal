@@ -145,6 +145,88 @@ class SupabaseBibleService {
     }
   }
 
+  // Convert flat verse structure to book-based structure
+  private convertFlatToBookStructure(verses: any): JSONBibleData {
+    const books: any = {};
+    
+    // Common book order and names
+    const bookNames = [
+      'Genesis', 'Exodus', 'Leviticus', 'Numbers', 'Deuteronomy', 'Joshua', 'Judges', 'Ruth',
+      '1 Samuel', '2 Samuel', '1 Kings', '2 Kings', '1 Chronicles', '2 Chronicles', 'Ezra', 'Nehemiah',
+      'Esther', 'Job', 'Psalms', 'Proverbs', 'Ecclesiastes', 'Song of Songs', 'Isaiah', 'Jeremiah',
+      'Lamentations', 'Ezekiel', 'Daniel', 'Hosea', 'Joel', 'Amos', 'Obadiah', 'Jonah', 'Micah',
+      'Nahum', 'Habakkuk', 'Zephaniah', 'Haggai', 'Zechariah', 'Malachi', 'Matthew', 'Mark',
+      'Luke', 'John', 'Acts', 'Romans', '1 Corinthians', '2 Corinthians', 'Galatians', 'Ephesians',
+      'Philippians', 'Colossians', '1 Thessalonians', '2 Thessalonians', '1 Timothy', '2 Timothy',
+      'Titus', 'Philemon', 'Hebrews', 'James', '1 Peter', '2 Peter', '1 John', '2 John', '3 John',
+      'Jude', 'Revelation'
+    ];
+    
+    // Process each verse entry
+    for (const [verseId, verseData] of Object.entries(verses)) {
+      if (typeof verseData === 'object' && verseData !== null) {
+        const verse = verseData as any;
+        
+        // Try to extract book, chapter, verse from the verse data
+        let bookName = '';
+        let chapterNum = 1;
+        let verseNum = 1;
+        let text = '';
+        
+        // Handle different possible structures
+        if (verse.book_name) {
+          bookName = verse.book_name;
+        } else if (verse.book) {
+          bookName = verse.book;
+        } else if (verse.book_id && verse.book_id <= bookNames.length) {
+          bookName = bookNames[verse.book_id - 1];
+        }
+        
+        if (verse.chapter) {
+          chapterNum = parseInt(verse.chapter) || 1;
+        } else if (verse.chapter_id) {
+          chapterNum = parseInt(verse.chapter_id) || 1;
+        }
+        
+        if (verse.verse) {
+          verseNum = parseInt(verse.verse) || 1;
+        } else if (verse.verse_id) {
+          verseNum = parseInt(verse.verse_id) || 1;
+        }
+        
+        if (verse.text) {
+          text = verse.text;
+        } else if (verse.verse_text) {
+          text = verse.verse_text;
+        } else if (typeof verse === 'string') {
+          text = verse;
+        }
+        
+        // Skip if we don't have essential data
+        if (!bookName || !text) {
+          continue;
+        }
+        
+        // Initialize book structure if needed
+        if (!books[bookName]) {
+          books[bookName] = { chapters: {} };
+        }
+        
+        // Initialize chapter structure if needed
+        if (!books[bookName].chapters[chapterNum]) {
+          books[bookName].chapters[chapterNum] = { verses: {} };
+        }
+        
+        // Add the verse
+        books[bookName].chapters[chapterNum].verses[verseNum] = text;
+      }
+    }
+    
+    console.log('🔄 Converted flat structure to book structure');
+    console.log('📚 Converted books:', Object.keys(books).slice(0, 10).join(', ') + '...');
+    
+    return { books };
+  }
   async getPassage(book: string, chapter: number, verses: string): Promise<BiblePassage | null> {
     await this.loadBibleData();
 
