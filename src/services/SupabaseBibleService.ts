@@ -129,20 +129,27 @@ class SupabaseBibleService {
         header.toLowerCase().trim().includes('asv')
       );
       
-      // Fallback to column D (index 3) if ASV column not found by name
+      // If ASV column not found, try 'text' column
       if (asvIndex === -1) {
-        console.log('⚠️ ASV column not found by name, using column D (index 3) as fallback');
-        asvIndex = 3; // Column D is index 3 (A=0, B=1, C=2, D=3)
-        
-        // Verify the fallback index is within bounds
-        if (asvIndex >= headers.length) {
-          console.error('❌ Column D (index 3) is out of bounds');
-          console.log('📋 Available columns:', headers);
-          return null;
-        }
+        asvIndex = headers.findIndex(header => 
+          header.toLowerCase().trim().includes('text')
+        );
       }
       
-      console.log(`✅ Using ASV column at index ${asvIndex} (${headers[asvIndex] || 'Column D'})`);
+      // If neither ASV nor text column found, use the last column
+      if (asvIndex === -1) {
+        asvIndex = headers.length - 1;
+        console.log(`⚠️ ASV/text column not found by name, using last column (index ${asvIndex}) as fallback`);
+      }
+      
+      // Verify the index is within bounds
+      if (asvIndex >= headers.length || asvIndex < 0) {
+        console.error('❌ Bible text column index is out of bounds');
+        console.log('📋 Available columns:', headers);
+        return null;
+      }
+      
+      console.log(`✅ Using Bible text column at index ${asvIndex} (${headers[asvIndex]})`);
       
       // Assume we also have book, chapter, verse columns
       const bookIndex = headers.findIndex(h => 
