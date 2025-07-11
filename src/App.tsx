@@ -104,11 +104,13 @@ function App() {
   };
 
   const handleSignIn = () => {
+    console.log('Sign In clicked'); // Debug log
     setAuthMode('signin');
     setShowAuthModal(true);
   };
 
   const handleSignUp = () => {
+    console.log('Sign Up clicked'); // Debug log
     setAuthMode('signup');
     setShowAuthModal(true);
   };
