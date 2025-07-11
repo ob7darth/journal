@@ -1,9 +1,6 @@
 import { BibleVerse, BiblePassage } from './BibleService';
 
 class BibleGatewayService {
-  private readonly API_KEY = 'your-api-key-here'; // You would need to get an API key
-  private readonly BASE_URL = 'https://api.esv.org/v3/passage/text/';
-
   async getPassage(book: string, chapter: number, verses: string): Promise<BiblePassage | null> {
     try {
       // For now, we'll use a simple approach that constructs Bible Gateway URLs
@@ -31,7 +28,7 @@ class BibleGatewayService {
     }
   }
 
-  async searchVerses(query: string, limit: number = 20): Promise<BibleVerse[]> {
+  async searchVerses(limit: number = 20): Promise<BibleVerse[]> {
     // Bible Gateway doesn't provide a direct search API that we can use from the browser
     // Return empty array and direct users to Bible Gateway for search
     return [];
