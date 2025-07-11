@@ -11,8 +11,8 @@ const BibleDataStatus: React.FC<BibleDataStatusProps> = ({ onConfigure }) => {
   const [stats, setStats] = useState({ totalVerses: 0, totalBooks: 0, totalChapters: 0 });
   const [loading, setLoading] = useState(true);
   const [showConfig, setShowConfig] = useState(false);
-  const [bucketName, setBucketName] = useState('bible-data');
-  const [fileName, setFileName] = useState('bible.json');
+  const [bucketName, setBucketName] = useState('bible');
+  const [fileName, setFileName] = useState('asv.json');
 
   useEffect(() => {
     loadStats();

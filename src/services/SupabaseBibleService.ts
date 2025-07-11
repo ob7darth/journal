@@ -19,8 +19,8 @@ class SupabaseBibleService {
   private bibleData: JSONBibleData | null = null;
   private _dataLoaded = false;
   private loadingPromise: Promise<void> | null = null;
-  private bucketName = 'bible-data'; // Default bucket name - you can change this
-  private fileName = 'bible.json'; // Default file name - you can change this
+  private bucketName = 'bible'; // Updated to match your actual bucket
+  private fileName = 'asv.json'; // Updated to match your actual file
 
   constructor() {
     // Auto-load on instantiation
