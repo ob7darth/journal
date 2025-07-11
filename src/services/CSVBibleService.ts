@@ -33,42 +33,18 @@ class CSVBibleService {
       
       let csvText = '';
       
-      // Try to load from Supabase storage first
+      // Load from local file
       try {
-        // Try to load from Supabase storage
-        if (canUseSupabase() && supabase) {
-          console.log('Attempting to load CSV from Supabase storage: bible/asv.csv');
-          const { data, error } = await supabase.storage
-            .from('bible')
-            .download('asv.csv');
-
-          if (!error && data) {
-            csvText = await data.text();
-            console.log('Successfully loaded Bible data from Supabase CSV file');
-            console.log('CSV text length:', csvText.length);
-            console.log('CSV preview:', csvText.substring(0, 200) + '...');
-          } else {
-            throw new Error('CSV file not found in Supabase storage');
-          }
+        const response = await fetch('/genesis_bible_verses.csv');
+        if (response.ok) {
+          csvText = await response.text();
+          console.log('Successfully loaded Bible data from local CSV file');
         } else {
-          throw new Error('Supabase not configured');
+          throw new Error('Local CSV file not found');
         }
-      } catch (error) {
-        console.log('Could not load CSV from Supabase, trying local file...');
-        
-        // Fallback to local file
-        try {
-          const response = await fetch('/genesis_bible_verses.csv');
-          if (response.ok) {
-            csvText = await response.text();
-            console.log('Successfully loaded Bible data from local CSV file');
-          } else {
-            throw new Error('Local CSV file not found');
-          }
-        } catch (localError) {
-          console.log('Could not load local CSV file, using fallback data...');
-          csvText = this.getFallbackCSVData();
-        }
+      } catch (localError) {
+        console.log('Could not load local CSV file, using fallback data...');
+        csvText = this.getFallbackCSVData();
       }
 
       this.parseCSVText(csvText);
