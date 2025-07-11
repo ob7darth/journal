@@ -31,8 +31,6 @@ export const isSupabaseConfigured = !!(
 
 // Additional validation logging
 console.log('  Is configured:', isSupabaseConfigured);
-console.log('  Client created:', !!supabase);
-console.log('🔧 End Supabase Debug\n');
 
 // Create Supabase client only if configured
 export const supabase = isSupabaseConfigured 
@@ -44,6 +42,10 @@ export const supabase = isSupabaseConfigured
       }
     })
   : null;
+
+// Additional validation logging (after supabase is defined)
+console.log('  Client created:', !!supabase);
+console.log('🔧 End Supabase Debug\n');
 
 // Helper function to check if Supabase operations are available
 export const canUseSupabase = (): boolean => {
