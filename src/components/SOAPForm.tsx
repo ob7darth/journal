@@ -52,7 +52,6 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
   const [showPrayerRequests, setShowPrayerRequests] = useState(false);
 
   // Auto-expanding textarea refs
-  const titleRef = useAutoExpandTextarea(title);
   const scriptureRef = useAutoExpandTextarea(scripture);
   const observationRef = useAutoExpandTextarea(observation);
   const applicationRef = useAutoExpandTextarea(application);

@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { Heart, MessageCircle, Clock, CheckCircle, Users, Lock } from 'lucide-react';
+import { Heart, MessageCircle, Clock, CheckCircle, Lock } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { supabaseAuthService } from '../services/SupabaseAuthService';
 import PrayerResponseForm from './PrayerResponseForm';
@@ -83,6 +83,11 @@ const PrayerRequestsList: React.FC<PrayerRequestsListProps> = ({
         setRequests(combinedRequests);
       } else {
         // For authenticated users, load from Supabase
+        if (!supabase) {
+          console.error('Supabase client not available');
+          return;
+        }
+        
         const { data, error } = await supabase
           .from('prayer_requests')
           .select(`

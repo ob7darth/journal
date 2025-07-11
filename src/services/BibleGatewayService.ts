@@ -1,9 +1,5 @@
 import { BibleVerse, BiblePassage } from './BibleService';
 
-interface BibleGatewayResponse {
-  passages: string[];
-}
-
 class BibleGatewayService {
   private readonly API_KEY = 'your-api-key-here'; // You would need to get an API key
   private readonly BASE_URL = 'https://api.esv.org/v3/passage/text/';
