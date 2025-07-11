@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { Passage } from '../types/ReadingPlan';
 import { BookOpen, ExternalLink, Loader, ChevronDown, ChevronUp } from 'lucide-react';
 import { bibleService, BiblePassage } from '../services/BibleService';
+import { supabaseBibleService } from '../services/SupabaseBibleService';
 
 interface ScriptureViewerProps {
   passage: Passage;
