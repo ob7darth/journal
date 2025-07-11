@@ -159,7 +159,15 @@ const BibleDataStatus: React.FC<BibleDataStatusProps> = ({ onConfigure }) => {
             ) : hasData ? (
               'Using fallback Bible data. Upload a JSON file to Supabase storage for complete Bible access.'
             ) : (
-              'No Bible data available. Please upload a JSON file to your Supabase storage bucket and configure the source above.'
+              <>
+                No Bible data available. Please:
+                <br />
+                1. Create a storage bucket named '{bucketName}' in your Supabase dashboard
+                <br />
+                2. Upload your JSON file as '{fileName}' to that bucket
+                <br />
+                3. Set the bucket to public or configure RLS policies for read access
+              </>
             )}
           </div>
         </div>

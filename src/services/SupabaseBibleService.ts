@@ -64,7 +64,10 @@ class SupabaseBibleService {
 
       if (error) {
         console.warn('Could not download Bible JSON from Supabase storage:', error.message);
-        throw error;
+        // Don't throw error, just log it and continue with fallback
+        console.warn(`📁 Storage bucket '${this.bucketName}' or file '${this.fileName}' not found. Please create the bucket and upload your JSON file.`);
+        this._dataLoaded = true;
+        return;
       }
 
       if (!data) {
