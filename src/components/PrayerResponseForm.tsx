@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Heart, Send, X } from 'lucide-react';
-import { supabase } from '../lib/supabase';
+import { supabase, canUseSupabase } from '../lib/supabase';
 import { supabaseAuthService } from '../services/SupabaseAuthService';
 
 interface PrayerRequest {
@@ -60,18 +60,22 @@ const PrayerResponseForm: React.FC<PrayerResponseFormProps> = ({
         guestResponses.push(newResponse);
         localStorage.setItem('guest-prayer-responses', JSON.stringify(guestResponses));
       } else {
-        // For authenticated users, save to Supabase
-        const { error: insertError } = await supabase
-          .from('prayer_responses')
-          .insert({
-            prayer_request_id: request.id,
-            user_id: user.id,
-            response_type: responseType,
-            message: message.trim()
-          });
+        // For authenticated users, save to Supabase if available
+        if (canUseSupabase() && supabase) {
+          const { error: insertError } = await supabase
+            .from('prayer_responses')
+            .insert({
+              prayer_request_id: request.id,
+              user_id: user.id,
+              response_type: responseType,
+              message: message.trim()
+            });
 
-        if (insertError) {
-          throw insertError;
+          if (insertError) {
+            throw insertError;
+          }
+        } else {
+          throw new Error('Database not available');
         }
       }
 

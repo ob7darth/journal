@@ -13,7 +13,6 @@ import ShareModal from './components/ShareModal';
 import ResourcesPanel from './components/ResourcesPanel';
 import SplashScreen from './components/SplashScreen';
 import AuthModal from './components/AuthModal';
-import UserProfile from './components/UserProfile';
 import InstallPrompt from './components/InstallPrompt';
 import { generateFullYearPlan } from './data/readingPlan';
 
@@ -25,7 +24,6 @@ function App() {
   const [user, setUser] = useState<AuthUser | null>(null);
   const [showAuthModal, setShowAuthModal] = useState(false);
   const [authMode, setAuthMode] = useState<'signin' | 'signup'>('signin');
-  const [showProfile, setShowProfile] = useState(false);
   
   // Calculate today's day of year
   const getTodaysDayOfYear = () => {
@@ -111,25 +109,6 @@ function App() {
     setShowAuthModal(false);
   };
 
-  const handleSignIn = () => {
-    console.log('Sign In clicked'); // Debug log
-    console.log('Current showAuthModal state:', showAuthModal);
-    setAuthMode('signin');
-    console.log('Set auth mode to signin');
-    setShowAuthModal(true);
-    console.log('Set showAuthModal to true');
-    // Force a re-render to ensure state change is applied
-    setTimeout(() => {
-      console.log('After timeout - showAuthModal state:', showAuthModal);
-    }, 100);
-  };
-
-  const handleSignUp = () => {
-    console.log('Sign Up clicked'); // Debug log
-    setAuthMode('signup');
-    setShowAuthModal(true);
-  };
-
   const handleGuestMode = async () => {
     console.log('Guest mode clicked');
     try {
@@ -173,7 +152,7 @@ function App() {
             currentDay={currentDay}
             totalDays={readingPlan.days.length}
             user={user}
-            onUserClick={() => setShowProfile(true)}
+            onUserClick={() => {}}
           />
           
           <main className="container mx-auto px-4 py-6 max-w-4xl">
