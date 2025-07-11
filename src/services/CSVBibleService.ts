@@ -1,3 +1,4 @@
+import { supabase, canUseSupabase } from '../lib/supabase';
 import { BibleVerse, BiblePassage } from './BibleService';
 
 interface CSVVerse {
@@ -32,18 +33,42 @@ class CSVBibleService {
       
       let csvText = '';
       
-      // Try to load from the uploaded CSV file
+      // Try to load from Supabase storage first
       try {
-        const response = await fetch('/genesis_bible_verses.csv');
-        if (response.ok) {
-          csvText = await response.text();
-          console.log('Successfully loaded Bible data from CSV file');
+        // Try to load from Supabase storage
+        if (canUseSupabase() && supabase) {
+          console.log('Attempting to load CSV from Supabase storage: bible/asv.csv');
+          const { data, error } = await supabase.storage
+            .from('bible')
+            .download('asv.csv');
+
+          if (!error && data) {
+            csvText = await data.text();
+            console.log('Successfully loaded Bible data from Supabase CSV file');
+            console.log('CSV text length:', csvText.length);
+            console.log('CSV preview:', csvText.substring(0, 200) + '...');
+          } else {
+            throw new Error('CSV file not found in Supabase storage');
+          }
         } else {
-          throw new Error('CSV file not found');
+          throw new Error('Supabase not configured');
         }
       } catch (error) {
-        console.log('Could not load CSV file, using fallback data...');
-        csvText = this.getFallbackCSVData();
+        console.log('Could not load CSV from Supabase, trying local file...');
+        
+        // Fallback to local file
+        try {
+          const response = await fetch('/genesis_bible_verses.csv');
+          if (response.ok) {
+            csvText = await response.text();
+            console.log('Successfully loaded Bible data from local CSV file');
+          } else {
+            throw new Error('Local CSV file not found');
+          }
+        } catch (localError) {
+          console.log('Could not load local CSV file, using fallback data...');
+          csvText = this.getFallbackCSVData();
+        }
       }
 
       this.parseCSVText(csvText);
@@ -91,8 +116,17 @@ Ephesians,2,9,"not as a result of works, so that no one may boast."`;
     const lines = csvText.split('\n').filter(line => line.trim());
     let parsedCount = 0;
     
-    // Skip header row
-    const dataLines = lines.slice(1);
+    // Check if first line is a header
+    const firstLine = lines[0];
+    const hasHeader = firstLine && (
+      firstLine.toLowerCase().includes('book') || 
+      firstLine.toLowerCase().includes('chapter') || 
+      firstLine.toLowerCase().includes('verse') ||
+      firstLine.toLowerCase().includes('text')
+    );
+    
+    const dataLines = hasHeader ? lines.slice(1) : lines;
+    console.log(`Processing ${dataLines.length} CSV lines (header detected: ${hasHeader})`);
     
     for (const line of dataLines) {
       const parsed = this.parseCSVLine(line);
@@ -107,6 +141,7 @@ Ephesians,2,9,"not as a result of works, so that no one may boast."`;
     }
     
     console.log(`Parsed ${parsedCount} verses from ${dataLines.length} lines`);
+    console.log(`Available books:`, Array.from(this.verses.keys()).slice(0, 10).join(', ') + '...');
   }
 
   private parseCSVLine(line: string): CSVVerse | null {
