@@ -125,17 +125,24 @@ class SupabaseBibleService {
       
       // Find header row and ASV column index
       const headers = this.parseCSVLine(lines[0]);
-      const asvIndex = headers.findIndex(header => 
-        header.toLowerCase().trim() === 'asv'
+      let asvIndex = headers.findIndex(header => 
+        header.toLowerCase().trim().includes('asv')
       );
       
+      // Fallback to column D (index 3) if ASV column not found by name
       if (asvIndex === -1) {
-        console.error('❌ ASV column not found in Excel file');
-        console.log('📋 Available columns:', headers);
-        return null;
+        console.log('⚠️ ASV column not found by name, using column D (index 3) as fallback');
+        asvIndex = 3; // Column D is index 3 (A=0, B=1, C=2, D=3)
+        
+        // Verify the fallback index is within bounds
+        if (asvIndex >= headers.length) {
+          console.error('❌ Column D (index 3) is out of bounds');
+          console.log('📋 Available columns:', headers);
+          return null;
+        }
       }
       
-      console.log(`✅ Found ASV column at index ${asvIndex}`);
+      console.log(`✅ Using ASV column at index ${asvIndex} (${headers[asvIndex] || 'Column D'})`);
       
       // Assume we also have book, chapter, verse columns
       const bookIndex = headers.findIndex(h => 
