@@ -35,7 +35,11 @@ const BibleDataStatus: React.FC<BibleDataStatusProps> = ({ onConfigure }) => {
     onConfigure?.(bucketName, fileName);
     setShowConfig(false);
     // Reload stats after configuration
-    setTimeout(loadStats, 1000);
+    setTimeout(() => {
+      loadStats();
+      // Force a page refresh to ensure all components get the new data
+      window.location.reload();
+    }, 2000);
   };
 
   const hasData = stats.totalVerses > 0;

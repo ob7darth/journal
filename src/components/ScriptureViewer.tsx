@@ -16,7 +16,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
   const [scripture, setScripture] = useState<BiblePassage | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
-  const [expanded, setExpanded] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState<boolean>(true); // Auto-expand to show content
   const [dataLoaded, setDataLoaded] = useState<boolean>(false);
 
   // Use the displayText if available, otherwise format as chapter only
@@ -43,22 +43,31 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
     setDataLoaded(bibleService.isLoaded());
     
     const fetchScripture = async () => {
-      if (!expanded) return;
+      // Always try to fetch scripture, not just when expanded
       
       setLoading(true);
       setError(null);
       
       try {
-        // Wait a bit for data to load if not ready
-        if (!bibleService.isLoaded()) {
-          await new Promise(resolve => setTimeout(resolve, 1000));
+        // Wait for data to load if not ready, with multiple attempts
+        let attempts = 0;
+        while (!bibleService.isLoaded() && attempts < 10) {
+          await new Promise(resolve => setTimeout(resolve, 500));
+          attempts++;
         }
         
         const result = await bibleService.getPassage(passage.book, passage.chapter, passage.verses);
         if (result) {
           setScripture(result);
+          setDataLoaded(true);
         } else {
-          setError('Scripture not found in our database. Please use the Bible Gateway link below to read this passage.');
+          // Check if we have any data at all
+          const stats = await bibleService.getStats();
+          if (stats.totalVerses > 0) {
+            setError(`Scripture not found: ${passage.book} ${passage.chapter}:${passage.verses}. This passage may not be available in our current Bible data.`);
+          } else {
+            setError('No Bible data loaded. Please configure your Bible data source in the Resources tab.');
+          }
         }
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'Unable to load scripture. Please try again later.';
@@ -70,7 +79,7 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
     };
 
     fetchScripture();
-  }, [passage.book, passage.chapter, passage.verses, expanded]);
+  }, [passage.book, passage.chapter, passage.verses]); // Remove expanded dependency
 
   const handleToggle = () => {
     setExpanded(!expanded);

@@ -49,13 +49,13 @@ class SupabaseBibleService {
 
   private async fetchAndParseJSONData(): Promise<void> {
     if (!canUseSupabase() || !supabase) {
-      console.warn('Supabase not configured, skipping JSON Bible data load');
+      console.log('Supabase not configured, skipping JSON Bible data load');
       this._dataLoaded = true;
       return;
     }
 
     try {
-      console.log(`Loading Bible data from Supabase storage: ${this.bucketName}/${this.fileName}`);
+      console.log(`Attempting to load Bible data from Supabase storage: ${this.bucketName}/${this.fileName}`);
       
       // Download the JSON file from Supabase storage
       const { data, error } = await supabase.storage
@@ -63,7 +63,7 @@ class SupabaseBibleService {
         .download(this.fileName);
 
       if (error) {
-        console.error('Error downloading Bible JSON from Supabase storage:', error);
+        console.warn('Could not download Bible JSON from Supabase storage:', error.message);
         throw error;
       }
 
@@ -78,19 +78,20 @@ class SupabaseBibleService {
       this.bibleData = JSON.parse(jsonText);
       this._dataLoaded = true;
       
-      console.log('Bible JSON data loaded successfully from Supabase storage');
-      console.log('Available books:', Object.keys(this.bibleData?.books || {}));
+      const bookCount = Object.keys(this.bibleData?.books || {}).length;
+      console.log(`✅ Bible JSON data loaded successfully from Supabase storage`);
+      console.log(`📚 Available books (${bookCount}):`, Object.keys(this.bibleData?.books || {}).slice(0, 10).join(', ') + (bookCount > 10 ? '...' : ''));
       
     } catch (error) {
-      console.error('Error loading Bible data from Supabase storage:', error);
+      console.warn('Could not load Bible data from Supabase storage:', error instanceof Error ? error.message : 'Unknown error');
       this._dataLoaded = true; // Mark as loaded even on error to prevent infinite retries
       
       // You might want to show a user-friendly error message here
       if (error instanceof Error) {
         if (error.message.includes('not found')) {
-          console.warn(`Bible JSON file not found at ${this.bucketName}/${this.fileName}`);
+          console.warn(`📄 Bible JSON file not found at ${this.bucketName}/${this.fileName}. Please upload your JSON file to this location.`);
         } else if (error.message.includes('permission')) {
-          console.warn('Permission denied accessing Bible JSON file. Check your RLS policies.');
+          console.warn('🔒 Permission denied accessing Bible JSON file. Check your RLS policies.');
         }
       }
     }

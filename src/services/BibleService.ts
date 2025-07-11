@@ -23,34 +23,46 @@ class BibleService {
   private gatewayService = bibleGatewayService;
 
   async getPassage(book: string, chapter: number, verses: string): Promise<BiblePassage | null> {
+    console.log(`🔍 Searching for passage: ${book} ${chapter}:${verses}`);
+    
     try {
       // Try Supabase JSON service first (highest priority)
-      if (this.supabaseService.hasData()) {
+      if (this.supabaseService.isLoaded() && this.supabaseService.hasData()) {
+        console.log('📖 Trying Supabase JSON service...');
         const passage = await this.supabaseService.getPassage(book, chapter, verses);
         if (passage) {
+          console.log('✅ Found passage in Supabase JSON service');
           return passage;
+        } else {
+          console.log('❌ Passage not found in Supabase JSON service');
         }
+      } else {
+        console.log('⏳ Supabase JSON service not ready or has no data');
       }
     } catch (error) {
-      console.error('Error fetching from Supabase JSON service:', error);
+      console.warn('⚠️ Error fetching from Supabase JSON service:', error);
     }
 
     try {
       // Try to get from CSV service first
+      console.log('📄 Trying CSV service...');
       const passage = await this.csvService.getPassage(book, chapter, verses);
       if (passage) {
+        console.log('✅ Found passage in CSV service');
         return passage;
+      } else {
+        console.log('❌ Passage not found in CSV service');
       }
     } catch (error) {
-      console.error('Error fetching from CSV service:', error);
+      console.warn('⚠️ Error fetching from CSV service:', error);
     }
 
     // Fallback to Bible Gateway service
     try {
-      console.log('Falling back to Bible Gateway for passage:', book, chapter, verses);
+      console.log('🌐 Falling back to Bible Gateway for passage:', book, chapter, verses);
       return await this.gatewayService.getPassage(book, chapter, verses);
     } catch (error) {
-      console.error('Error fetching from Bible Gateway service:', error);
+      console.warn('⚠️ Error fetching from Bible Gateway service:', error);
       return null;
     }
   }
