@@ -14,13 +14,27 @@ export interface BiblePassage {
 
 import { csvBibleService } from './CSVBibleService';
 import { bibleGatewayService } from './BibleGatewayService';
+import { supabaseBibleService } from './SupabaseBibleService';
 
 class BibleService {
-  // Use the CSV Bible service as the primary data source
+  // Use multiple data sources with priority order
+  private supabaseService = supabaseBibleService;
   private csvService = csvBibleService;
   private gatewayService = bibleGatewayService;
 
   async getPassage(book: string, chapter: number, verses: string): Promise<BiblePassage | null> {
+    try {
+      // Try Supabase JSON service first (highest priority)
+      if (this.supabaseService.hasData()) {
+        const passage = await this.supabaseService.getPassage(book, chapter, verses);
+        if (passage) {
+          return passage;
+        }
+      }
+    } catch (error) {
+      console.error('Error fetching from Supabase JSON service:', error);
+    }
+
     try {
       // Try to get from CSV service first
       const passage = await this.csvService.getPassage(book, chapter, verses);
@@ -43,6 +57,18 @@ class BibleService {
 
   async searchVerses(query: string, limit: number = 20): Promise<BibleVerse[]> {
     try {
+      // Try Supabase JSON service first
+      if (this.supabaseService.hasData()) {
+        const results = await this.supabaseService.searchVerses(query, limit);
+        if (results.length > 0) {
+          return results;
+        }
+      }
+    } catch (error) {
+      console.error('Error searching in Supabase JSON service:', error);
+    }
+
+    try {
       // Try to search in CSV service first
       const results = await this.csvService.searchVerses(query, limit);
       if (results.length > 0) {
@@ -64,6 +90,15 @@ class BibleService {
 
   async getStats(): Promise<{totalVerses: number, totalBooks: number, totalChapters: number}> {
     try {
+      // Try Supabase service first
+      if (this.supabaseService.hasData()) {
+        return await this.supabaseService.getStats();
+      }
+    } catch (error) {
+      console.error('Error getting stats from Supabase service:', error);
+    }
+
+    try {
       return await this.csvService.getStats();
     } catch (error) {
       console.error('Error getting stats from CSV service:', error);
@@ -77,7 +112,25 @@ class BibleService {
 
   // Check if Bible data is loaded
   isLoaded(): boolean {
-    return this.csvService.isLoaded();
+    return this.supabaseService.isLoaded() || this.csvService.isLoaded();
+  }
+
+  // Check if we have any Bible data available
+  hasData(): boolean {
+    return this.supabaseService.hasData() || this.csvService.isLoaded();
+  }
+
+  // Get available books from the best available source
+  getAvailableBooks(): string[] {
+    if (this.supabaseService.hasData()) {
+      return this.supabaseService.getAvailableBooks();
+    }
+    return []; // CSV service doesn't have this method, could be added
+  }
+
+  // Configure Supabase Bible service
+  configureSupabaseSource(bucketName: string, fileName: string) {
+    this.supabaseService.configure(bucketName, fileName);
   }
 
   // Get Bible Gateway URL for external access

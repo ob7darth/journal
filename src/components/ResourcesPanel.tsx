@@ -1,6 +1,7 @@
 import React from 'react';
 import { ExternalLink, Heart, Users, Play, GraduationCap, ShoppingCart } from 'lucide-react';
 import PrayerRequestsList from './PrayerRequestsList';
+import BibleDataStatus from './BibleDataStatus';
 
 const ResourcesPanel: React.FC = () => {
   const resources = [
@@ -40,6 +41,9 @@ const ResourcesPanel: React.FC = () => {
 
   return (
     <div className="space-y-6">
+      {/* Bible Data Status */}
+      <BibleDataStatus />
+
       {/* Main Resources */}
       <div className="grid gap-6 md:grid-cols-1 lg:grid-cols-2 xl:grid-cols-4">
         {resources.map((resource, index) => (

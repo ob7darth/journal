@@ -7,6 +7,7 @@ A comprehensive Bible reading and journaling application with live chat function
 - **Daily Bible Reading Plan**: Complete year-long reading plan with themed daily readings
 - **SOAP Study Method**: Scripture, Observation, Application, Prayer journaling
 - **Progress Tracking**: Visual calendar showing completed days and progress
+- **Multiple Bible Data Sources**: Supports JSON files from Supabase storage, local CSV data, and Bible Gateway fallback
 ## Supabase Setup
 - **Live Group Chat**: Real-time chat with other users for encouragement and prayer
 This application uses Supabase for authentication and data storage.
@@ -16,6 +17,49 @@ This application uses Supabase for authentication and data storage.
 2. Create a new account or sign in
 3. Create a new project
 4. Wait for the project to be set up
+## Bible Data Configuration
+
+The application supports multiple Bible data sources with automatic fallback:
+
+### 1. Supabase JSON Storage (Recommended)
+Upload a JSON file containing Bible data to your Supabase storage bucket:
+
+1. **JSON Format**: The file should follow this structure:
+   ```json
+   {
+     "books": {
+       "Genesis": {
+         "chapters": {
+           "1": {
+             "verses": {
+               "1": "In the beginning God created the heavens and the earth.",
+               "2": "The earth was formless and void..."
+             }
+           }
+         }
+       }
+     }
+   }
+   ```
+
+2. **Upload to Supabase**:
+   - Create a storage bucket (e.g., `bible-data`)
+   - Upload your JSON file (e.g., `bible.json`)
+   - Ensure proper RLS policies for public read access
+
+3. **Configure in App**:
+   - Go to Resources tab
+   - Use the Bible Data Status panel to configure bucket and file names
+   - The app will automatically load and use your JSON data
+
+### 2. Local CSV Data (Fallback)
+- Place a `genesis_bible_verses.csv` file in the `public` folder
+- Limited to sample verses but works offline
+
+### 3. Bible Gateway (External Fallback)
+- Provides links to Bible Gateway for passages not found locally
+- Always available as final fallback
+
 - **Sharing**: Share your SOAP entries with others
 ### 2. Get Your Project Credentials
 1. Go to Settings → API in your Supabase dashboard
@@ -38,6 +82,12 @@ This application uses Supabase for authentication and data storage.
 3. Enable email authentication
 4. Optionally configure social providers
 - **User Authentication**: Secure sign-up/sign-in with guest mode option
+### 5. Set Up Storage (Optional)
+1. Go to Storage in your Supabase dashboard
+2. Create a new bucket for Bible data (e.g., `bible-data`)
+3. Set appropriate RLS policies for public read access
+4. Upload your Bible JSON file
+
 ### Database Schema
 The application creates the following tables:
 - `profiles` - User profile information

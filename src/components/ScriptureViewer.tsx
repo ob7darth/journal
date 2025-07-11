@@ -75,6 +75,8 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
     setExpanded(!expanded);
   };
 
+  const dataSource = supabaseBibleService.hasData() ? 'Supabase JSON' : 'Local Data';
+
   return (
     <div className="bg-white rounded-lg border border-gray-200 overflow-hidden mb-3 shadow-sm hover:shadow-md transition-shadow">
       <div 
@@ -87,7 +89,8 @@ const ScriptureViewer: React.FC<ScriptureViewerProps> = ({
             <span className="font-semibold text-gray-900">{formattedPassage}</span>
             <span className="text-sm text-gray-500 ml-2">
               ({version})
-              {!dataLoaded && <span className="text-yellow-600 ml-1">• Loading Bible data...</span>}
+              {!dataLoaded && <span className="text-yellow-600 ml-1">• Loading...</span>}
+              {dataLoaded && <span className="text-green-600 ml-1">• {dataSource}</span>}
             </span>
           </div>
         </div>
