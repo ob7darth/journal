@@ -105,8 +105,15 @@ function App() {
 
   const handleSignIn = () => {
     console.log('Sign In clicked'); // Debug log
+    console.log('Current showAuthModal state:', showAuthModal);
     setAuthMode('signin');
+    console.log('Set auth mode to signin');
     setShowAuthModal(true);
+    console.log('Set showAuthModal to true');
+    // Force a re-render to ensure state change is applied
+    setTimeout(() => {
+      console.log('After timeout - showAuthModal state:', showAuthModal);
+    }, 100);
   };
 
   const handleSignUp = () => {
@@ -313,6 +320,7 @@ function App() {
       <InstallPrompt />
 
       {/* Auth Modal */}
+      {console.log('Rendering AuthModal with isOpen:', showAuthModal, 'mode:', authMode)}
       <AuthModal
         isOpen={showAuthModal}
         onClose={() => setShowAuthModal(false)}
