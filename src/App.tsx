@@ -59,6 +59,14 @@ function App() {
     }
   }, []);
 
+  // Auto-show auth modal if not authenticated
+  useEffect(() => {
+    if (!user && !showSplash) {
+      setShowAuthModal(true);
+      setAuthMode('signin');
+    }
+  }, [user, showSplash]);
+
   // Load user-specific entries
   const loadUserEntries = () => {
     supabaseSOAPService.getAllEntries()
@@ -155,14 +163,6 @@ function App() {
   if (showSplash) {
     return <SplashScreen onComplete={() => setShowSplash(false)} />;
   }
-
-  // Auto-show auth modal if not authenticated
-  useEffect(() => {
-    if (!user && !showSplash) {
-      setShowAuthModal(true);
-      setAuthMode('signin');
-    }
-  }, [user, showSplash]);
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-warm-50 to-warm-100">
