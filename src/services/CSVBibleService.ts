@@ -60,32 +60,32 @@ class CSVBibleService {
   }
 
   private getFallbackCSVData(): string {
-    // Fallback CSV data with Genesis verses
+    // Fallback CSV data with ASV verses to match the Excel spreadsheet
     return `book,chapter,verse,text
 Genesis,1,1,"In the beginning God created the heavens and the earth."
-Genesis,1,2,"The earth was formless and void, and darkness was over the surface of the deep, and the Spirit of God was moving over the surface of the waters."
-Genesis,1,3,"Then God said, ""Let there be light""; and there was light."
-Genesis,1,4,"God saw that the light was good; and God separated the light from the darkness."
-Genesis,1,5,"God called the light day, and the darkness He called night. And there was evening and there was morning, one day."
-Genesis,1,26,"Then God said, ""Let Us make man in Our image, according to Our likeness; and let them rule over the fish of the sea and over the birds of the sky and over the cattle and over all the earth, and over every creeping thing that creeps on the earth."""
-Genesis,1,27,"God created man in His own image, in the image of God He created him; male and female He created them."
-Genesis,1,28,"God blessed them; and God said to them, ""Be fruitful and multiply, and fill the earth, and subdue it; and rule over the fish of the sea and over the birds of the sky and over every living thing that moves on the earth."""
-Genesis,2,7,"Then the LORD God formed man of dust from the ground, and breathed into his nostrils the breath of life; and man became a living being."
-Genesis,2,15,"Then the LORD God took the man and put him into the garden of Eden to cultivate it and keep it."
-Genesis,2,18,"Then the LORD God said, ""It is not good for the man to be alone; I will make him a helper suitable for him."""
-Genesis,3,1,"Now the serpent was more cunning than any beast of the field which the LORD God had made. And he said to the woman, ""Has God indeed said, 'You shall not eat of every tree of the garden'?"""
-Genesis,3,6,"When the woman saw that the tree was good for food, and that it was a delight to the eyes, and that the tree was desirable to make one wise, she took from its fruit and ate; and she gave also to her husband with her, and he ate."
-Genesis,3,15,"And I will put enmity Between you and the woman, And between your seed and her seed; He shall bruise you on the head, And you shall bruise him on the heel."
-Psalms,23,1,"The LORD is my shepherd, I shall not want."
-Psalms,23,2,"He makes me lie down in green pastures; He leads me beside quiet waters."
-Psalms,23,3,"He restores my soul; He guides me in the paths of righteousness For His name's sake."
-Psalms,23,4,"Even though I walk through the valley of the shadow of death, I fear no evil, for You are with me; Your rod and Your staff, they comfort me."
-John,3,16,"For God so loved the world, that He gave His only begotten Son, that whoever believes in Him shall not perish, but have eternal life."
-John,14,6,"Jesus said to him, ""I am the way, and the truth, and the life; no one comes to the Father but through Me."""
-Romans,3,23,"for all have sinned and fall short of the glory of God,"
-Romans,6,23,"For the wages of sin is death, but the free gift of God is eternal life in Christ Jesus our Lord."
-Ephesians,2,8,"For by grace you have been saved through faith; and that not of yourselves, it is the gift of God;"
-Ephesians,2,9,"not as a result of works, so that no one may boast."`;
+Genesis,1,2,"And the earth was waste and void; and darkness was upon the face of the deep: and the Spirit of God moved upon the face of the waters."
+Genesis,1,3,"And God said, Let there be light: and there was light."
+Genesis,1,4,"And God saw the light, that it was good: and God divided the light from the darkness."
+Genesis,1,5,"And God called the light Day, and the darkness he called Night. And there was evening and there was morning, one day."
+Genesis,1,26,"And God said, Let us make man in our image, after our likeness: and let them have dominion over the fish of the sea, and over the birds of the heavens, and over the cattle, and over all the earth, and over every creeping thing that creepeth upon the earth."
+Genesis,1,27,"And God created man in his own image, in the image of God created he him; male and female created he them."
+Genesis,1,28,"And God blessed them: and God said unto them, Be fruitful, and multiply, and replenish the earth, and subdue it; and have dominion over the fish of the sea, and over the birds of the heavens, and over every living thing that moveth upon the earth."
+Genesis,2,7,"And Jehovah God formed man of the dust of the ground, and breathed into his nostrils the breath of life; and man became a living soul."
+Genesis,2,15,"And Jehovah God took the man, and put him into the garden of Eden to dress it and to keep it."
+Genesis,2,18,"And Jehovah God said, It is not good that the man should be alone; I will make him a help meet for him."
+Genesis,3,1,"Now the serpent was more subtle than any beast of the field which Jehovah God had made. And he said unto the woman, Yea, hath God said, Ye shall not eat of any tree of the garden?"
+Genesis,3,6,"And when the woman saw that the tree was good for food, and that it was a delight to the eyes, and that the tree was to be desired to make one wise, she took of the fruit thereof, and did eat; and she gave also unto her husband with her, and he did eat."
+Genesis,3,15,"and I will put enmity between thee and the woman, and between thy seed and her seed: he shall bruise thy head, and thou shalt bruise his heel."
+Psalms,23,1,"Jehovah is my shepherd; I shall not want."
+Psalms,23,2,"He maketh me to lie down in green pastures; He leadeth me beside still waters."
+Psalms,23,3,"He restoreth my soul: He guideth me in the paths of righteousness for his name's sake."
+Psalms,23,4,"Yea, though I walk through the valley of the shadow of death, I will fear no evil; for thou art with me; Thy rod and thy staff, they comfort me."
+John,3,16,"For God so loved the world, that he gave his only begotten Son, that whosoever believeth on him should not perish, but have eternal life."
+John,14,6,"Jesus saith unto him, I am the way, and the truth, and the life: no one cometh unto the Father, but by me."
+Romans,3,23,"for all have sinned, and fall short of the glory of God;"
+Romans,6,23,"For the wages of sin is death; but the free gift of God is eternal life in Christ Jesus our Lord."
+Ephesians,2,8,"for by grace have ye been saved through faith; and that not of yourselves, it is the gift of God;"
+Ephesians,2,9,"not of works, that no man should glory."`;
   }
 
   private parseCSVText(csvText: string): void {

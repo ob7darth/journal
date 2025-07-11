@@ -146,12 +146,12 @@ class BibleService {
   }
 
   // Get Bible Gateway URL for external access
-  getBibleGatewayUrl(book: string, chapter: number, verses: string, version: string = 'NIV'): string {
+  getBibleGatewayUrl(book: string, chapter: number, verses: string, version: string = 'ASV'): string {
     return this.gatewayService.getBibleGatewayUrl(book, chapter, verses, version);
   }
 
   // Get Bible Gateway search URL
-  getBibleGatewaySearchUrl(query: string, version: string = 'NIV'): string {
+  getBibleGatewaySearchUrl(query: string, version: string = 'ASV'): string {
     return this.gatewayService.getBibleGatewaySearchUrl(query, version);
   }
 }

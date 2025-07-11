@@ -11,7 +11,7 @@ interface ScriptureViewerProps {
 
 const ScriptureViewer: React.FC<ScriptureViewerProps> = ({ 
   passage, 
-  version = 'NIV'
+  version = 'ASV'
 }) => {
   const [scripture, setScripture] = useState<BiblePassage | null>(null);
   const [loading, setLoading] = useState<boolean>(false);
