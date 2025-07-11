@@ -108,18 +108,25 @@ class SupabaseBibleService {
       return null;
     }
 
+    console.log('📚 Available books in JSON:', Object.keys(this.bibleData.books).slice(0, 10).join(', ') + '...');
+    console.log('🔍 Looking for book:', book);
+
     // Normalize book name (handle different formats)
     const normalizedBook = this.normalizeBookName(book);
+    console.log('📖 Normalized book name:', normalizedBook);
+    
     const bookData = this.bibleData.books[normalizedBook];
 
     if (!bookData) {
-      console.warn(`Book not found in JSON data: ${book} (normalized: ${normalizedBook})`);
+      console.warn(`❌ Book not found in JSON data: ${book} (normalized: ${normalizedBook})`);
+      console.log('📚 Available books:', Object.keys(this.bibleData.books));
       return null;
     }
 
     const chapterData = bookData.chapters[chapter.toString()];
     if (!chapterData) {
-      console.warn(`Chapter not found: ${book} ${chapter}`);
+      console.warn(`❌ Chapter not found: ${book} ${chapter}`);
+      console.log('📑 Available chapters for', normalizedBook, ':', Object.keys(bookData.chapters));
       return null;
     }
 
@@ -140,10 +147,12 @@ class SupabaseBibleService {
     }
 
     if (matchingVerses.length === 0) {
-      console.warn(`No verses found for ${book} ${chapter}:${verses}`);
+      console.warn(`❌ No verses found for ${book} ${chapter}:${verses}`);
+      console.log('📝 Available verses for chapter:', Object.keys(chapterData.verses));
       return null;
     }
 
+    console.log(`✅ Found ${matchingVerses.length} verses for ${book} ${chapter}:${verses}`);
     return {
       book: normalizedBook,
       chapter,
@@ -271,6 +280,22 @@ class SupabaseBibleService {
       '2Ki': '2 Kings',
       '2 Ki': '2 Kings',
       '2 Ki.': '2 Kings',
+      '1 Chronicles': '1 Chronicles',
+      '1Chr': '1 Chronicles',
+      '1 Chr': '1 Chronicles',
+      '1 Chr.': '1 Chronicles',
+      '2 Chronicles': '2 Chronicles',
+      '2Chr': '2 Chronicles',
+      '2 Chr': '2 Chronicles',
+      '2 Chr.': '2 Chronicles',
+      'Ezra': 'Ezra',
+      'Nehemiah': 'Nehemiah',
+      'Neh': 'Nehemiah',
+      'Neh.': 'Nehemiah',
+      'Esther': 'Esther',
+      'Est': 'Esther',
+      'Est.': 'Esther',
+      'Job': 'Job',
       'Psalms': 'Psalms',
       'Ps': 'Psalms',
       'Ps.': 'Psalms',
@@ -278,6 +303,58 @@ class SupabaseBibleService {
       'Proverbs': 'Proverbs',
       'Prov': 'Proverbs',
       'Prov.': 'Proverbs',
+      'Ecclesiastes': 'Ecclesiastes',
+      'Ecc': 'Ecclesiastes',
+      'Ecc.': 'Ecclesiastes',
+      'Song of Songs': 'Song of Songs',
+      'Song': 'Song of Songs',
+      'Isaiah': 'Isaiah',
+      'Is': 'Isaiah',
+      'Is.': 'Isaiah',
+      'Jeremiah': 'Jeremiah',
+      'Jer': 'Jeremiah',
+      'Jer.': 'Jeremiah',
+      'Lamentations': 'Lamentations',
+      'Lam': 'Lamentations',
+      'Lam.': 'Lamentations',
+      'Ezekiel': 'Ezekiel',
+      'Ezek': 'Ezekiel',
+      'Ezek.': 'Ezekiel',
+      'Daniel': 'Daniel',
+      'Dan': 'Daniel',
+      'Dan.': 'Daniel',
+      'Hosea': 'Hosea',
+      'Hos': 'Hosea',
+      'Hos.': 'Hosea',
+      'Joel': 'Joel',
+      'Amos': 'Amos',
+      'Obadiah': 'Obadiah',
+      'Obad': 'Obadiah',
+      'Obad.': 'Obadiah',
+      'Jonah': 'Jonah',
+      'Jon': 'Jonah',
+      'Jon.': 'Jonah',
+      'Micah': 'Micah',
+      'Mic': 'Micah',
+      'Mic.': 'Micah',
+      'Nahum': 'Nahum',
+      'Nah': 'Nahum',
+      'Nah.': 'Nahum',
+      'Habakkuk': 'Habakkuk',
+      'Hab': 'Habakkuk',
+      'Hab.': 'Habakkuk',
+      'Zephaniah': 'Zephaniah',
+      'Zeph': 'Zephaniah',
+      'Zeph.': 'Zephaniah',
+      'Haggai': 'Haggai',
+      'Hag': 'Haggai',
+      'Hag.': 'Haggai',
+      'Zechariah': 'Zechariah',
+      'Zech': 'Zechariah',
+      'Zech.': 'Zechariah',
+      'Malachi': 'Malachi',
+      'Mal': 'Malachi',
+      'Mal.': 'Malachi',
       'Matthew': 'Matthew',
       'Matt': 'Matthew',
       'Mt': 'Matthew',
@@ -369,7 +446,31 @@ class SupabaseBibleService {
       'Rev.': 'Revelation'
     };
 
-    return bookMappings[book] || book;
+    // First try exact match
+    if (bookMappings[book]) {
+      return bookMappings[book];
+    }
+    
+    // If no exact match, try to find a case-insensitive match in the actual data
+    if (this.bibleData) {
+      const availableBooks = Object.keys(this.bibleData.books);
+      const lowerBook = book.toLowerCase();
+      
+      for (const availableBook of availableBooks) {
+        if (availableBook.toLowerCase() === lowerBook) {
+          return availableBook;
+        }
+      }
+      
+      // Try partial matches for common abbreviations
+      for (const availableBook of availableBooks) {
+        if (availableBook.toLowerCase().startsWith(lowerBook)) {
+          return availableBook;
+        }
+      }
+    }
+    
+    return book;
   }
 
   private parseVerseRange(verses: string): number[] {
