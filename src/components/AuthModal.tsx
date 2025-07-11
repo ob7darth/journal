@@ -41,12 +41,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
 
     try {
       switch (mode) {
-        case 'guest':
-          if (!formData.name.trim()) {
-            throw new Error('Please enter your name');
-          }
-          await authService.signInAsGuest(formData.name);
-          break;
 
         case 'signup':
           if (!formData.name.trim() || !formData.email.trim() || !formData.password) {
@@ -129,7 +123,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
 
   const getTitle = () => {
     switch (mode) {
-      case 'guest': return 'Continue as Guest';
       case 'signup': return 'Create Account';
       case 'signin': return 'Sign In';
       case 'upgrade': return 'Upgrade to Member Account';
@@ -140,7 +133,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
 
   const getIcon = () => {
     switch (mode) {
-      case 'guest': return <Users size={24} />;
       case 'signup': return <UserPlus size={24} />;
       case 'signin': return <LogIn size={24} />;
       case 'upgrade': return <UserPlus size={24} />;
@@ -171,11 +163,6 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
 
           {/* Description */}
           <div className="mb-6">
-            {mode === 'guest' && (
-              <p className="text-gray-600 text-sm">
-                Start your devotional journey immediately. Your entries will be saved locally on this device.
-              </p>
-            )}
             {mode === 'signup' && (
               <p className="text-gray-600">
                 Create a member account to sync your devotions across all your devices and never lose your spiritual journey.
@@ -201,7 +188,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           {/* Form */}
           <form onSubmit={handleSubmit} className="space-y-4">
             {/* Name field */}
-            {(mode === 'guest' || mode === 'signup') && (
+            {mode === 'signup' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Your Name
@@ -264,7 +251,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
             )}
 
             {/* Confirm Password field */}
-            {(mode === 'signup' || mode === 'upgrade') && (
+            {mode === 'signup' && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Confirm Password
@@ -435,61 +422,18 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
             </div>
           )}
 
-          {/* Guest Access - Minimal Emphasis at Bottom */}
-          {(mode === 'signin' || mode === 'signup') && (
-            <div className="mt-8 pt-4 text-center">
-              <p className="text-xs text-gray-500 mb-2">Or continue without an account</p>
-              <button
-                onClick={() => setMode('guest')}
-                className="text-xs text-gray-400 hover:text-gray-600 transition-colors underline"
-              >
-                Continue as Guest
-              </button>
-            </div>
-          )}
-
-          {/* Guest Mode Form */}
-          {mode === 'guest' && (
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-primary-600 text-white py-4 px-6 rounded-lg hover:bg-primary-700 disabled:opacity-50 disabled:cursor-not-allowed transition-colors flex items-center justify-center gap-2 font-semibold text-lg"
-            >
-              {loading ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                  Processing...
-                </>
-              ) : (
-                <>
-                  {getIcon()}
-                  Continue as Guest
-                </>
-              )}
-            </button>
-          )}
 
           {/* Benefits */}
-          {mode !== 'upgrade' && mode !== 'forgot-password' && (
+          {mode !== 'upgrade' && mode !== 'forgot-password' && mode !== 'guest' && (
             <div className="mt-6 p-6 bg-gray-50 rounded-lg">
               <h4 className="font-semibold text-gray-800 mb-2">
-                {mode === 'guest' ? 'Guest Mode Benefits:' : 'Member Benefits:'}
+                Member Benefits:
               </h4>
               <ul className="text-sm text-gray-600 space-y-1">
-                {mode === 'guest' ? (
-                  <>
-                    <li>• Start immediately, no signup required</li>
-                    <li>• All features available locally</li>
-                    <li>• Upgrade to member account anytime</li>
-                  </>
-                ) : (
-                  <>
-                    <li>• Sync across all your devices</li>
-                    <li>• Automatic cloud backup</li>
-                    <li>• Never lose your spiritual journey</li>
-                    <li>• Enhanced sharing features</li>
-                  </>
-                )}
+                <li>• Sync across all your devices</li>
+                <li>• Automatic cloud backup</li>
+                <li>• Never lose your spiritual journey</li>
+                <li>• Enhanced sharing features</li>
               </ul>
             </div>
           )}
