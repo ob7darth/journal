@@ -109,7 +109,7 @@ function App() {
   };
 
   const handleSignUp = () => {
-    setAuthMode(mode);
+    setAuthMode('signup');
     setShowAuthModal(true);
   };
 
