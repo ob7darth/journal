@@ -19,7 +19,7 @@ class SupabaseBibleService {
   private bibleData: JSONBibleData | null = null;
   private _dataLoaded = false;
   private loadingPromise: Promise<void> | null = null;
-  private bucketName = 'bible-data';
+  private bucketName = 'bible';
   private fileName = 'bibles.xlsx'; // Excel file with multiple Bible versions
 
   constructor() {
