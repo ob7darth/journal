@@ -314,6 +314,14 @@ function App() {
         mode={authMode}
         onSuccess={handleAuthSuccess}
       />
+
+      {/* Share Modal */}
+      {showShareModal && entryToShare && (
+        <ShareModal
+          entry={entryToShare}
+          isOpen={showShareModal}
+          onClose={() => {
+            setShowShareModal(false);
             setEntryToShare(null);
           }}
         />
