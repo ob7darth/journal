@@ -3,6 +3,11 @@ import { createClient } from '@supabase/supabase-js';
 const supabaseUrl = import.meta.env.VITE_SUPABASE_URL;
 const supabaseAnonKey = import.meta.env.VITE_SUPABASE_ANON_KEY;
 
+// Debug logging to verify environment variables are loaded
+console.log('Supabase URL:', supabaseUrl);
+console.log('Supabase Key exists:', !!supabaseAnonKey);
+console.log('Supabase Key length:', supabaseAnonKey?.length);
+
 // Validate URL format
 const isValidUrl = (url: string): boolean => {
   try {
@@ -21,6 +26,9 @@ export const isSupabaseConfigured = !!(
   supabaseAnonKey !== 'your_supabase_anon_key' &&
   isValidUrl(supabaseUrl)
 );
+
+// Additional validation logging
+console.log('Is Supabase configured:', isSupabaseConfigured);
 
 // Create Supabase client only if configured
 export const supabase = isSupabaseConfigured 
