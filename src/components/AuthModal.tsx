@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Lock, UserPlus, LogIn, Users, KeyRound } from 'lucide-react';
+import { X, User, Mail, Lock, UserPlus, LogIn, KeyRound } from 'lucide-react';
 import { supabaseAuthService as authService } from '../services/SupabaseAuthService';
 
 interface AuthModalProps {

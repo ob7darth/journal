@@ -109,17 +109,6 @@ function App() {
     setShowAuthModal(false);
   };
 
-  const handleGuestMode = async () => {
-    console.log('Guest mode clicked');
-    try {
-      const guestUser = await authService.signInAsGuest('Guest User');
-      console.log('Guest user created:', guestUser);
-      setUser(guestUser);
-    } catch (error) {
-      console.error('Error creating guest user:', error);
-    }
-  };
-
   const currentReading = readingPlan.days.find(d => d.day === currentDay);
   const currentEntry = soapEntries[currentDay];
 
@@ -298,7 +287,6 @@ function App() {
       {showShareModal && entryToShare && (
         <ShareModal
           entry={entryToShare}
-          isOpen={showShareModal}
           onClose={() => {
             setShowShareModal(false);
             setEntryToShare(null);
