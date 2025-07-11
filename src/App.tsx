@@ -167,21 +167,6 @@ function App() {
             >
               Sign In
             </button>
-            <button
-              onClick={handleGuestMode}
-              className="w-full bg-green-600 text-white py-3 px-4 rounded-lg hover:bg-green-700 transition-colors"
-            >
-              Create Account
-            </button>
-            <button
-              onClick={handleGuestMode}
-              className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors"
-            >
-              Continue as Guest
-            </button>
-            <p className="text-xs text-gray-500 text-center mt-2">
-              Guest mode: Your data will be saved locally on this device only
-            </p>
           </div>
         </div>
       </div>
