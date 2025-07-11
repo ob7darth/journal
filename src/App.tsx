@@ -115,6 +115,17 @@ function App() {
     setShowAuthModal(true);
   };
 
+  const handleGuestMode = async () => {
+    console.log('Guest mode clicked');
+    try {
+      const guestUser = await authService.signInAsGuest('Guest User');
+      console.log('Guest user created:', guestUser);
+      setUser(guestUser);
+    } catch (error) {
+      console.error('Error creating guest user:', error);
+    }
+  };
+
   const currentReading = readingPlan.days.find(d => d.day === currentDay);
   const currentEntry = soapEntries[currentDay];
 
@@ -162,6 +173,15 @@ function App() {
             >
               Create Account
             </button>
+            <button
+              onClick={handleGuestMode}
+              className="w-full bg-gray-600 text-white py-3 px-4 rounded-lg hover:bg-gray-700 transition-colors"
+            >
+              Continue as Guest
+            </button>
+            <p className="text-xs text-gray-500 text-center mt-2">
+              Guest mode: Your data will be saved locally on this device only
+            </p>
           </div>
         </div>
       </div>
