@@ -307,6 +307,20 @@ class SupabaseAuthService {
     return this.currentUser;
   }
 
+  async resetPassword(email: string): Promise<void> {
+    if (!canUseSupabase() || !supabase) {
+      throw new Error('Password reset is only available for member accounts. Please create a member account to use this feature.');
+    }
+
+    const { error } = await supabase.auth.resetPasswordForEmail(email, {
+      redirectTo: `${window.location.origin}/reset-password`
+    });
+
+    if (error) {
+      throw new Error(error.message);
+    }
+  }
+
   isAuthenticated(): boolean {
     return this.currentUser !== null;
   }

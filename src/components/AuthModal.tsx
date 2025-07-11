@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { X, User, Mail, Lock, UserPlus, LogIn, Users } from 'lucide-react';
+import { X, User, Mail, Lock, UserPlus, LogIn, Users, KeyRound } from 'lucide-react';
 import { supabaseAuthService as authService } from '../services/SupabaseAuthService';
 
 interface AuthModalProps {
   isOpen: boolean;
   onClose: () => void;
-  mode: 'signin' | 'signup' | 'guest' | 'upgrade';
+  mode: 'signin' | 'signup' | 'guest' | 'upgrade' | 'forgot-password';
   onSuccess?: () => void;
 }
 
@@ -19,10 +19,12 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
   });
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [successMessage, setSuccessMessage] = useState('');
 
   const resetForm = () => {
     setFormData({ name: '', email: '', password: '', confirmPassword: '' });
     setError('');
+    setSuccessMessage('');
     setLoading(false);
   };
 
@@ -34,6 +36,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
+    setSuccessMessage('');
     setLoading(true);
 
     try {
@@ -77,6 +80,14 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           }
           await authService.upgradeToMember(formData.email, formData.password);
           break;
+
+        case 'forgot-password':
+          if (!formData.email.trim()) {
+            throw new Error('Please enter your email address');
+          }
+          await authService.resetPassword(formData.email);
+          setSuccessMessage('Password reset email sent! Please check your inbox and follow the instructions to reset your password.');
+          return; // Don't call onSuccess for password reset
       }
 
       onSuccess?.();
@@ -120,6 +131,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
       case 'signup': return 'Create Account';
       case 'signin': return 'Sign In';
       case 'upgrade': return 'Upgrade to Member Account';
+      case 'forgot-password': return 'Reset Password';
       default: return 'Authentication';
     }
   };
@@ -130,6 +142,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
       case 'signup': return <UserPlus size={24} />;
       case 'signin': return <LogIn size={24} />;
       case 'upgrade': return <UserPlus size={24} />;
+      case 'forgot-password': return <KeyRound size={24} />;
       default: return <User size={24} />;
     }
   };
@@ -157,7 +170,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
           {/* Description */}
           <div className="mb-6">
             {mode === 'guest' && (
-              <p className="text-gray-600">
+              <p className="text-gray-600 text-sm">
                 Start your devotional journey immediately. Your entries will be saved locally on this device.
               </p>
             )}
@@ -174,6 +187,11 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
             {mode === 'upgrade' && (
               <p className="text-gray-600">
                 Upgrade to a member account to sync your devotions across devices and backup your spiritual journey.
+              </p>
+            )}
+            {mode === 'forgot-password' && (
+              <p className="text-gray-600">
+                Enter your email address and we'll send you a link to reset your password.
               </p>
             )}
           </div>
@@ -201,7 +219,7 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
             )}
 
             {/* Email field */}
-            {(mode === 'signup' || mode === 'signin' || mode === 'upgrade') && (
+            {(mode === 'signup' || mode === 'signin' || mode === 'upgrade' || mode === 'forgot-password') && (
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   Email Address
@@ -263,6 +281,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
               </div>
             )}
 
+            {/* Success message */}
+            {successMessage && (
+              <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700">{successMessage}</p>
+              </div>
+            )}
+
             {/* Error message */}
             {error && (
               <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
@@ -288,19 +313,32 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
                   {mode === 'signup' && 'Create Account'}
                   {mode === 'signin' && 'Sign In'}
                   {mode === 'upgrade' && 'Upgrade Account'}
+                  {mode === 'forgot-password' && 'Send Reset Email'}
                 </>
               )}
             </button>
           </form>
 
+          {/* Forgot Password Link - Only show on signin */}
+          {mode === 'signin' && (
+            <div className="mt-4 text-center">
+              <button
+                onClick={() => setMode('forgot-password')}
+                className="text-sm text-primary-600 hover:text-primary-700 font-medium"
+              >
+                Forgot your password?
+              </button>
+            </div>
+          )}
+
           {/* Mode switching */}
           <div className="mt-6 pt-4 border-t border-gray-200">
             {mode === 'guest' && (
-              <div className="text-center space-y-2">
-                <p className="text-sm text-gray-600">Already have an account?</p>
+              <div className="text-center space-y-3">
+                <p className="text-xs text-gray-500">Already have an account?</p>
                 <button
                   onClick={() => setMode('signin')}
-                  className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                  className="text-primary-600 hover:text-primary-700 font-medium text-xs"
                 >
                   Sign In Instead
                 </button>
@@ -317,10 +355,13 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
                   >
                     Create Account
                   </button>
-                  <span className="text-gray-300">|</span>
+                </div>
+                
+                {/* Guest option moved to bottom with smaller styling */}
+                <div className="mt-4 pt-3 border-t border-gray-100">
                   <button
                     onClick={() => setMode('guest')}
-                    className="text-gray-600 hover:text-gray-700 font-medium text-sm"
+                    className="text-gray-500 hover:text-gray-600 text-xs font-normal"
                   >
                     Continue as Guest
                   </button>
@@ -338,20 +379,35 @@ const AuthModal: React.FC<AuthModalProps> = ({ isOpen, onClose, mode: initialMod
                   >
                     Sign In
                   </button>
-                  <span className="text-gray-300">|</span>
+                </div>
+                
+                {/* Guest option moved to bottom with smaller styling */}
+                <div className="mt-4 pt-3 border-t border-gray-100">
                   <button
                     onClick={() => setMode('guest')}
-                    className="text-gray-600 hover:text-gray-700 font-medium text-sm"
+                    className="text-gray-500 hover:text-gray-600 text-xs font-normal"
                   >
                     Continue as Guest
                   </button>
                 </div>
               </div>
             )}
+
+            {mode === 'forgot-password' && (
+              <div className="text-center space-y-2">
+                <p className="text-sm text-gray-600">Remember your password?</p>
+                <button
+                  onClick={() => setMode('signin')}
+                  className="text-primary-600 hover:text-primary-700 font-medium text-sm"
+                >
+                  Back to Sign In
+                </button>
+              </div>
+            )}
           </div>
 
           {/* Benefits */}
-          {mode !== 'upgrade' && (
+          {mode !== 'upgrade' && mode !== 'forgot-password' && (
             <div className="mt-6 p-4 bg-gray-50 rounded-lg">
               <h4 className="font-semibold text-gray-800 mb-2">
                 {mode === 'guest' ? 'Guest Mode Benefits:' : 'Member Benefits:'}
