@@ -10,7 +10,7 @@ interface ShareModalProps {
 const ShareModal: React.FC<ShareModalProps> = ({ entry, onClose }) => {
   const [copied, setCopied] = useState(false);
 
-  const shareText = `Day ${entry.day} SOAP Study
+  const shareText = `Day ${entry.day} SOAP Study${entry.title ? ` - ${entry.title}` : ''}
 
 📖 Scripture: ${entry.scripture}
 
@@ -44,7 +44,7 @@ const ShareModal: React.FC<ShareModalProps> = ({ entry, onClose }) => {
         window.open(`https://twitter.com/intent/tweet?text=${encodedText}`, '_blank');
         break;
       case 'email':
-        window.open(`mailto:?subject=My Life Journal Study - Day ${entry.day}&body=${encodedText}`, '_blank');
+        window.open(`mailto:?subject=My Life Journal Study - Day ${entry.day}${entry.title ? ` - ${entry.title}` : ''}&body=${encodedText}`, '_blank');
         break;
       case 'sms':
         window.open(`sms:?body=${encodedText}`, '_blank');
@@ -71,8 +71,16 @@ const ShareModal: React.FC<ShareModalProps> = ({ entry, onClose }) => {
 
           <div className="mb-6">
             <div className="bg-gray-50 rounded-lg p-4 mb-4">
-              <h3 className="font-semibold text-gray-800 mb-2">Day {entry.day} Preview:</h3>
+              <h3 className="font-semibold text-gray-800 mb-2">
+                Day {entry.day}{entry.title ? ` - ${entry.title}` : ''} Preview:
+              </h3>
               <div className="text-sm text-gray-600 space-y-2">
+                {entry.title && (
+                  <div>
+                    <span className="font-medium">📝 Title:</span>
+                    <p className="mt-1">{entry.title}</p>
+                  </div>
+                )}
                 <div>
                   <span className="font-medium">📖 Scripture:</span>
                   <p className="mt-1">{entry.scripture}</p>

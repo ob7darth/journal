@@ -41,6 +41,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
   onBack,
   onShare
 }) => {
+  const [title, setTitle] = useState(existingEntry?.title || '');
   const [scripture, setScripture] = useState(existingEntry?.scripture || '');
   const [observation, setObservation] = useState(existingEntry?.observation || '');
   const [application, setApplication] = useState(existingEntry?.application || '');
@@ -51,16 +52,17 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
   const [showPrayerRequests, setShowPrayerRequests] = useState(false);
 
   // Auto-expanding textarea refs
+  const titleRef = useAutoExpandTextarea(title);
   const scriptureRef = useAutoExpandTextarea(scripture);
   const observationRef = useAutoExpandTextarea(observation);
   const applicationRef = useAutoExpandTextarea(application);
   const prayerRef = useAutoExpandTextarea(prayer);
 
   // Check if entry is complete (all fields filled)
-  const isComplete = scripture.trim() && observation.trim() && application.trim() && prayer.trim();
+  const isComplete = title.trim() && scripture.trim() && observation.trim() && application.trim() && prayer.trim();
   
   // Check if there's any content to save
-  const hasContent = scripture.trim() || observation.trim() || application.trim() || prayer.trim();
+  const hasContent = title.trim() || scripture.trim() || observation.trim() || application.trim() || prayer.trim();
 
   const handleSave = async () => {
     if (!hasContent) {
@@ -73,6 +75,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
     try {
       const entry: SOAPEntry = {
         day,
+        title: title.trim(),
         scripture: scripture.trim(),
         observation: observation.trim(),
         application: application.trim(),
@@ -108,6 +111,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
 
     const entry: SOAPEntry = {
       day,
+      title: title.trim(),
       scripture: scripture.trim(),
       observation: observation.trim(),
       application: application.trim(),
@@ -183,11 +187,12 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
           <div className="flex items-center justify-between mb-2">
             <span className="text-sm font-medium text-blue-900">Progress</span>
             <span className="text-sm text-blue-700">
-              {[scripture, observation, application, prayer].filter(field => field.trim()).length}/4 sections
+              {[title, scripture, observation, application, prayer].filter(field => field.trim()).length}/5 sections
             </span>
           </div>
           <div className="flex gap-2">
             {[
+              { label: 'Title', value: title },
               { label: 'Scripture', value: scripture },
               { label: 'Observation', value: observation },
               { label: 'Application', value: application },
@@ -210,6 +215,24 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
 
       {/* Form */}
       <div className="p-6 space-y-6">
+        {/* Title */}
+        <div>
+          <label className="block text-sm font-semibold text-gray-800 mb-2">
+            📝 Entry Title
+            <span className="font-normal text-gray-600 ml-2">
+              Give your study a meaningful title (optional)
+            </span>
+          </label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="e.g., 'God's Love in Creation', 'Finding Peace in Trials'..."
+            className="w-full px-4 py-3 border border-gray-300 rounded-lg bg-white focus:border-primary-500 focus:ring-2 focus:ring-primary-500 transition-colors"
+            maxLength={100}
+          />
+          <p className="text-xs text-gray-500 mt-1">{title.length}/100 characters</p>
+        </div>
         {/* Scripture */}
         <div>
           <div className="flex items-center justify-between mb-2">
@@ -306,6 +329,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
         <div className="p-4 bg-blue-50 rounded-lg">
           <h4 className="font-semibold text-blue-900 mb-2">💡 Study Tips</h4>
           <ul className="text-sm text-blue-800 space-y-1">
+            <li>• Give your entry a meaningful title to help you remember the key theme</li>
             <li>• Text boxes expand automatically as you type - write as much as you need!</li>
             <li>• You can save your progress at any time and continue later</li>
             <li>• Fill out sections as you feel led - there's no pressure to complete everything at once</li>
@@ -345,7 +369,7 @@ const SOAPForm: React.FC<SOAPFormProps> = ({
               }`}
             >
               <Share2 size={20} />
-              {isComplete ? 'Share Entry' : 'Complete Entry to Share'}
+              {isComplete ? 'Share Entry' : 'Complete All Sections to Share'}
             </button>
           )}
         </div>

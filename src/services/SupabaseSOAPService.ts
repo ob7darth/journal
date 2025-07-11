@@ -32,6 +32,7 @@ class SupabaseSOAPService {
         .upsert({
           user_id: user.id,
           day,
+          title: entry.title,
           scripture: entry.scripture,
           observation: entry.observation,
           application: entry.application,
@@ -86,6 +87,7 @@ class SupabaseSOAPService {
 
       return {
         day: data.day,
+        title: data.title || '',
         scripture: data.scripture,
         observation: data.observation,
         application: data.application,
@@ -129,6 +131,7 @@ class SupabaseSOAPService {
       data.forEach((entry) => {
         entries[entry.day] = {
           day: entry.day,
+          title: entry.title || '',
           scripture: entry.scripture,
           observation: entry.observation,
           application: entry.application,
