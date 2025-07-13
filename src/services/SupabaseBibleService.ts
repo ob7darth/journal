@@ -63,15 +63,17 @@ class SupabaseBibleService {
         .download(this.fileName);
 
       if (error) {
-        console.error('❌ Could not download Bible Excel from Supabase storage:', error.message);
-        console.error(`📁 Storage bucket '${this.bucketName}' or Excel file '${this.fileName}' not found.`);
-        console.error('🔗 Expected URL:', `${supabase.supabaseUrl}/storage/v1/object/public/${this.bucketName}/${this.fileName}`);
+        console.warn('⚠️ Could not download Bible Excel from Supabase storage:', error.message);
+        console.warn(`📁 Storage bucket '${this.bucketName}' or Excel file '${this.fileName}' not found.`);
+        console.warn('🔗 Expected URL:', `${supabase.supabaseUrl}/storage/v1/object/public/${this.bucketName}/${this.fileName}`);
+        console.warn('💡 This is expected if you haven\'t set up Bible data in Supabase storage yet.');
+        console.warn('📖 The app will fall back to other Bible data sources (CSV files, Bible Gateway).');
         this._dataLoaded = true;
         return;
       }
 
       if (!data) {
-        console.error('❌ No Excel data received from Supabase storage');
+        console.warn('⚠️ No Excel data received from Supabase storage');
         this._dataLoaded = true;
         return;
       }
@@ -79,7 +81,7 @@ class SupabaseBibleService {
       // Parse Excel file and extract ASV column
       const bibleData = await this.parseExcelToJSON(data);
       if (!bibleData) {
-        console.error('❌ Failed to parse Excel file');
+        console.warn('⚠️ Failed to parse Excel file');
         this._dataLoaded = true;
         return;
       }
@@ -93,17 +95,19 @@ class SupabaseBibleService {
       console.log(`📚 Available books (${bookCount}):`, Object.keys(this.bibleData?.books || {}).slice(0, 10).join(', ') + (bookCount > 10 ? '...' : ''));
       
     } catch (error) {
-      console.error('❌ Could not load ASV Bible data from Excel file:', error instanceof Error ? error.message : 'Unknown error');
+      console.warn('⚠️ Could not load ASV Bible data from Excel file:', error instanceof Error ? error.message : 'Unknown error');
       this._dataLoaded = true; // Mark as loaded even on error to prevent infinite retries
       
-      // You might want to show a user-friendly error message here
+      // Provide helpful guidance without throwing errors
       if (error instanceof Error) {
         if (error.message.includes('not found')) {
-          console.error(`📄 Bible Excel file not found at ${this.bucketName}/${this.fileName}. Please upload your Excel file to this location.`);
+          console.warn(`📄 Bible Excel file not found at ${this.bucketName}/${this.fileName}. This is normal if you haven't uploaded Bible data yet.`);
         } else if (error.message.includes('permission')) {
-          console.error('🔒 Permission denied accessing Bible Excel file. Check your RLS policies.');
+          console.warn('🔒 Permission denied accessing Bible Excel file. Check your RLS policies.');
         }
       }
+      
+      console.warn('📖 The app will continue using fallback Bible data sources.');
     }
   }
 
@@ -168,7 +172,7 @@ class SupabaseBibleService {
       
       for (let i = 1; i < lines.length; i++) {
         const fields = this.parseCSVLine(lines[i]);
-        if (fields.length <= Math.max(bookIndex, chapterIndex, verseIndex, asvIndex)) {
+        if (fields.length <= Math.max(referenceIndex, asvIndex)) {
           continue;
         }
         
@@ -273,11 +277,12 @@ class SupabaseBibleService {
     
     return fields;
   }
+
   async getPassage(book: string, chapter: number, verses: string): Promise<BiblePassage | null> {
     await this.loadBibleData();
 
     if (!this.bibleData) {
-      console.warn('❌ Bible JSON data not available - data failed to load or is invalid');
+      console.log('📖 Bible JSON data not available - falling back to other sources');
       return null;
     }
 
@@ -296,7 +301,7 @@ class SupabaseBibleService {
     const bookData = this.bibleData.books[normalizedBook];
 
     if (!bookData) {
-      console.warn(`❌ Book not found in JSON data: ${book} (normalized: ${normalizedBook})`);
+      console.log(`📖 Book not found in JSON data: ${book} (normalized: ${normalizedBook})`);
       console.log('📚 Available books:', Object.keys(this.bibleData.books));
       return null;
     }
@@ -308,7 +313,7 @@ class SupabaseBibleService {
 
     const chapterData = bookData.chapters[chapter.toString()];
     if (!chapterData) {
-      console.warn(`❌ Chapter not found: ${book} ${chapter}`);
+      console.log(`📖 Chapter not found: ${book} ${chapter}`);
       console.log('📑 Available chapters for', normalizedBook, ':', Object.keys(bookData.chapters));
       return null;
     }
@@ -335,7 +340,7 @@ class SupabaseBibleService {
     }
 
     if (matchingVerses.length === 0) {
-      console.warn(`❌ No verses found for ${book} ${chapter}:${verses}`);
+      console.log(`📖 No verses found for ${book} ${chapter}:${verses}`);
       console.log('📝 Available verses for chapter:', Object.keys(chapterData.verses));
       return null;
     }
