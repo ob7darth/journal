@@ -63,8 +63,15 @@ class SupabaseBibleService {
         .download(this.fileName);
 
       if (error) {
-        console.warn('⚠️ Could not download Bible Excel from Supabase storage:', error.message);
-        console.warn(`📁 Storage bucket '${this.bucketName}' or Excel file '${this.fileName}' not found.`);
+        if (error.message.includes('Bucket not found')) {
+          console.warn(`⚠️ Supabase storage bucket '${this.bucketName}' not found.`);
+          console.warn('📁 Please create the bucket in your Supabase dashboard and upload your Bible data file.');
+        } else if (error.message.includes('Object not found')) {
+          console.warn(`⚠️ Bible file '${this.fileName}' not found in bucket '${this.bucketName}'.`);
+          console.warn('📄 Please upload your Bible data file to the bucket.');
+        } else {
+          console.warn('⚠️ Could not download Bible Excel from Supabase storage:', error.message);
+        }
         console.warn('🔗 Expected URL:', `${supabase.supabaseUrl}/storage/v1/object/public/${this.bucketName}/${this.fileName}`);
         console.warn('💡 This is expected if you haven\'t set up Bible data in Supabase storage yet.');
         console.warn('📖 The app will fall back to other Bible data sources (CSV files, Bible Gateway).');
